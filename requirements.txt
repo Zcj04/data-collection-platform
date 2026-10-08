@@ -1,0 +1,14 @@
+pandas==3.0.5
+openpyxl==3.1.5
+cryptography==50.0.0
+PyYAML==6.0.3
+python-dotenv==1.2.2
+playwright==1.62.0
+PyMySQL==1.2.0
+requests==2.34.2
+numpy==2.5.1
+fastapi==0.141.1
+uvicorn==0.52.1
+openai==3.0.0
+python-multipart==0.0.32
+# execjs - Python 3.13 不支持，美团mtgsig当前为硬编码无需此依赖

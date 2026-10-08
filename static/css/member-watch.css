@@ -1,0 +1,11 @@
+.member-watch { padding: 16px; margin-top: 16px; border: 1px solid #d8e4ef; border-radius: 12px; background: #fff; color: #173456; overflow-wrap: anywhere; }
+.member-watch h3 { margin: 0 0 10px; font-size: 16px; }
+.member-watch h4 { margin: 10px 0 4px; font-size: 13px; }
+.member-watch p { margin: 6px 0; font-size: 12px; line-height: 1.65; }
+.member-watch details { margin-top: 10px; padding: 10px; border: 1px solid #d8e4ef; border-radius: 8px; }
+.member-watch summary { cursor: pointer; font-size: 13px; line-height: 1.7; }
+.member-watch summary:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
+.member-watch-store > summary { font-weight: 700; }
+.member-watch-store > details { background: #f7fafc; }
+.member-watch-stores { max-height: 460px; overflow: auto; padding-right: 4px; }
+.member-watch-stores:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }

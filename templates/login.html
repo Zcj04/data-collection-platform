@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="企业内部数据平台登录">
+  <title>登录 · 企业数据平台</title>
+  <link rel="stylesheet" href="/static/vendor/tabler-icons/tabler-icons.min.css">
+  <style>
+    :root{--brand:#2563eb;--brand-strong:#1d4ed8;--brand-soft:#eff6ff;--brand-line:#bfdbfe;--rail:#60a5fa;--ink:#0f172a;--muted:#64748b;--line:#dbe3ee;--danger:#dc2626;--data-font:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,monospace}
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%}
+    body{min-height:100vh;display:grid;place-items:center;padding:28px;background:#f3f6fa;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;-webkit-font-smoothing:antialiased}
+    body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(226,232,240,.62),transparent 340px)}
+    [hidden]{display:none!important}
+    button,input{font:inherit}
+    .auth-layout{width:min(920px,100%);display:grid;grid-template-columns:minmax(0,.92fr) minmax(360px,1.08fr);overflow:hidden;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 24px 64px -34px rgba(15,23,42,.38)}
+    .auth-brand{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:590px;padding:44px;overflow:hidden;color:#fff;background:#0c1628}
+    .auth-brand::before,.auth-brand::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+    .auth-brand::before{width:2px;height:68%;right:42px;top:70px;border-radius:0;background:var(--rail);opacity:.92}
+    .auth-brand::after{width:70px;height:2px;right:42px;top:70px;border-radius:0;background:rgba(191,219,254,.72)}
+    .brand-lockup,.brand-copy,.brand-foot{position:relative;z-index:1}
+    .brand-lockup{display:flex;align-items:center;gap:12px}
+    .brand-mark{width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.24);border-radius:14px;background:rgba(255,255,255,.12);box-shadow:inset 0 1px rgba(255,255,255,.12)}
+    .brand-mark i{font-size:22px}
+    .brand-name{font-size:15px;font-weight:750}.brand-subtitle{margin-top:2px;color:rgba(255,255,255,.56);font-family:var(--data-font);font-size:10px;font-weight:700;letter-spacing:.12em}
+    .brand-copy h1{max-width:340px;margin:0;font-size:34px;line-height:1.22;letter-spacing:-.035em}.brand-copy p{max-width:330px;margin:16px 0 0;color:rgba(255,255,255,.7);font-size:14px;line-height:1.8}
+    .brand-points{display:grid;gap:10px;margin-top:26px}.brand-point{display:flex;align-items:center;gap:9px;color:rgba(255,255,255,.78);font-size:12px}.brand-point i{color:#93c5fd;font-size:16px}
+    .brand-foot{color:rgba(255,255,255,.45);font-family:var(--data-font);font-size:11px}
+    .auth-panel{display:flex;align-items:center;padding:48px clamp(34px,5vw,64px)}
+    .auth-content{width:100%;max-width:390px;margin:auto}
+    .mode-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:var(--brand-soft);color:var(--brand-strong);font-family:var(--data-font);font-size:11px;font-weight:750}
+    .auth-heading{margin:18px 0 0;font-size:27px;line-height:1.25;letter-spacing:-.025em}.auth-intro{margin:9px 0 28px;color:var(--muted);font-size:13px;line-height:1.7}
+    .field{margin-bottom:17px}.field label{display:block;margin-bottom:6px;color:#475569;font-size:12px;font-weight:700}.field input{width:100%;height:44px;padding:0 13px;border:1px solid var(--line);border-radius:9px;outline:none;background:#fff;color:var(--ink);font-size:14px;transition:border-color .15s,box-shadow .15s}.field input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.16)}
+    .password-wrap{position:relative}.password-wrap input{padding-right:46px}.password-toggle{position:absolute;right:5px;top:5px;width:34px;height:34px;display:grid;place-items:center;border:0;border-radius:8px;background:transparent;color:#64748b;cursor:pointer}.password-toggle:hover{background:#f1f5f9;color:#334155}
+    .field-hint{margin:6px 0 0;color:#64748b;font-size:11px}
+    .auth-error{min-height:20px;margin:-3px 0 10px;color:var(--danger);font-size:12px;line-height:1.5}
+    .auth-submit{width:100%;height:44px;display:flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:9px;background:var(--brand);color:#fff;font-weight:750;cursor:pointer;box-shadow:0 10px 22px -10px rgba(37,99,235,.5);transition:transform .15s,box-shadow .15s}.auth-submit:hover:not(:disabled){background:var(--brand-strong);transform:translateY(-1px);box-shadow:0 14px 28px -12px rgba(37,99,235,.58)}.auth-submit:disabled{opacity:.65;cursor:wait}
+    .setup-note{display:flex;align-items:flex-start;gap:9px;margin:0 0 20px;padding:11px 12px;border:1px solid var(--brand-line);border-radius:9px;background:var(--brand-soft);color:var(--brand-strong);font-size:12px;line-height:1.55}.setup-note i{margin-top:1px;font-size:16px}
+    .auth-foot{margin-top:22px;color:#64748b;font-family:var(--data-font);font-size:11px;text-align:center}
+    :where(a,button,input):focus-visible{outline:3px solid rgba(37,99,235,.72);outline-offset:2px}
+    @media(max-width:760px){body{padding:16px}.auth-layout{grid-template-columns:minmax(0,1fr);max-width:480px}.auth-brand{min-height:auto;padding:24px}.brand-copy,.brand-foot{display:none}.auth-panel{padding:34px 26px}}
+    @media(max-width:420px){body{padding:0;background:#fff}.auth-layout{min-height:100vh;border:0;border-radius:0;box-shadow:none}.auth-brand{padding:18px 22px}.auth-panel{align-items:flex-start;padding:34px 22px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body data-auth-mode="{{ auth_mode }}">
+  <main class="auth-layout">
+    <section class="auth-brand" aria-label="企业数据平台介绍">
+      <div class="brand-lockup">
+        <span class="brand-mark"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></span>
+        <span><span class="brand-name">企业数据平台</span><span class="brand-subtitle">INTERNAL DATA PLATFORM</span></span>
+      </div>
+      <div class="brand-copy">
+        <h1>让需要数据的人，安全地获取数据。</h1>
+        <p>统一查看经营总览、汇总数据与趋势，同时把采集和账号管理留在受控的管理后台。</p>
+        <div class="brand-points">
+          <span class="brand-point"><i class="ti ti-shield-check" aria-hidden="true"></i> 账号和权限由管理员统一分配</span>
+          <span class="brand-point"><i class="ti ti-eye" aria-hidden="true"></i> 数据门户保持只读边界</span>
+          <span class="brand-point"><i class="ti ti-lock" aria-hidden="true"></i> 登录会话使用安全 Cookie</span>
+        </div>
+      </div>
+      <div class="brand-foot">仅供企业内部授权人员使用</div>
+    </section>
+
+    <section class="auth-panel" aria-labelledby="auth-title">
+      <div class="auth-content">
+        <span id="auth-mode-pill" class="mode-pill"><i class="ti ti-login-2" aria-hidden="true"></i><span>账号登录</span></span>
+        <h1 id="auth-title" class="auth-heading">登录数据平台</h1>
+        <p id="auth-intro" class="auth-intro">使用管理员为你创建的内部账号继续访问。</p>
+        <div id="setup-note" class="setup-note" hidden><i class="ti ti-shield-lock" aria-hidden="true"></i><span>当前系统还没有账号。请创建首个超级管理员；系统不会预置默认密码。</span></div>
+
+        <form id="auth-form">
+          <div class="field">
+            <label for="auth-username">登录账号</label>
+            <input id="auth-username" name="username" type="text" autocomplete="username" required minlength="3" maxlength="50" pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,49}" title="3–50 位字母、数字、点、下划线或短横线，首位必须是字母或数字" aria-describedby="username-hint" autofocus>
+            <p id="username-hint" class="field-hint">3–50 位字母、数字、点、下划线或短横线，首位为字母或数字。</p>
+          </div>
+          <div id="auth-display-name-row" class="field" hidden>
+            <label for="auth-display-name">管理员姓名</label>
+            <input id="auth-display-name" name="display_name" type="text" autocomplete="name" maxlength="50">
+          </div>
+          <div class="field">
+            <label for="auth-password">密码</label>
+            <div class="password-wrap">
+              <input id="auth-password" name="password" type="password" autocomplete="current-password" required minlength="10" maxlength="128" aria-describedby="password-hint">
+              <button id="password-toggle" class="password-toggle" type="button" aria-label="显示密码" aria-pressed="false"><i class="ti ti-eye" aria-hidden="true"></i></button>
+            </div>
+            <p id="password-hint" class="field-hint">密码长度为 10–128 个字符。</p>
+          </div>
+          <div id="auth-confirm-row" class="field" hidden>
+            <label for="auth-password-confirm">确认密码</label>
+            <input id="auth-password-confirm" type="password" autocomplete="new-password" minlength="10" maxlength="128">
+          </div>
+          <div id="auth-error" class="auth-error" role="alert" aria-live="assertive"></div>
+          <button id="auth-submit" class="auth-submit" type="submit"><i class="ti ti-login-2" aria-hidden="true"></i><span id="auth-submit-label">登录</span></button>
+        </form>
+        <div class="auth-foot">登录即表示你仅会在授权范围内使用内部数据</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+      const byId = (id) => document.getElementById(id);
+      const rawMode = document.body.dataset.authMode;
+      const mode = rawMode === "setup" ? "setup" : "login";
+      const form = byId("auth-form");
+      const username = byId("auth-username");
+      const displayName = byId("auth-display-name");
+      const password = byId("auth-password");
+      const confirmation = byId("auth-password-confirm");
+      const errorBox = byId("auth-error");
+      const submit = byId("auth-submit");
+
+      function setText(id, value) { byId(id).textContent = value; }
+      function responseMessage(payload, fallback) {
+        if (!payload || typeof payload !== "object") return fallback;
+        if (typeof payload.message === "string") return payload.message;
+        if (typeof payload.detail === "string") return payload.detail;
+        if (typeof payload.error === "string") return payload.error;
+        return fallback;
+      }
+      function safeDestination(value, fallback) {
+        if (!value || !value.startsWith("/") || value.startsWith("//")) return fallback;
+        try {
+          const target = new URL(value, location.origin);
+          return target.origin === location.origin ? target.pathname + target.search + target.hash : fallback;
+        } catch (_) { return fallback; }
+      }
+      function authorizedRequestedDestination(value, user) {
+        const destination = safeDestination(value, "");
+        if (!destination) return "";
+        const path = new URL(destination, location.origin).pathname;
+        const permissions = new Set(user && Array.isArray(user.permissions) ? user.permissions : []);
+        if ((path === "/admin" || path.startsWith("/admin/")) && !permissions.has("admin.access")) return "";
+        if ((path === "/" || path === "/portal" || path === "/store" || path.startsWith("/portal/")) && !permissions.has("portal.view")) return "";
+        return destination;
+      }
+      function configureMode() {
+        if (mode !== "setup") return;
+        document.title = "初始化管理员 · 企业数据平台";
+        byId("auth-mode-pill").querySelector("i").className = "ti ti-user-plus";
+        byId("auth-mode-pill").querySelector("span").textContent = "首次初始化";
+        setText("auth-title", "创建超级管理员");
+        setText("auth-intro", "这个账号将拥有数据门户、管理后台和用户管理的全部权限。");
+        byId("setup-note").hidden = false;
+        byId("auth-display-name-row").hidden = false;
+        byId("auth-confirm-row").hidden = false;
+        displayName.required = true;
+        confirmation.required = true;
+        password.autocomplete = "new-password";
+        setText("auth-submit-label", "创建超级管理员");
+      }
+      byId("password-toggle").addEventListener("click", () => {
+        const show = password.type === "password";
+        password.type = show ? "text" : "password";
+        const button = byId("password-toggle");
+        button.setAttribute("aria-label", show ? "隐藏密码" : "显示密码");
+        button.setAttribute("aria-pressed", String(show));
+        button.querySelector("i").className = "ti ti-" + (show ? "eye-off" : "eye");
+      });
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        errorBox.textContent = "";
+        if (mode === "setup" && password.value !== confirmation.value) {
+          errorBox.textContent = "两次输入的密码不一致。";
+          confirmation.focus();
+          return;
+        }
+        submit.disabled = true;
+        setText("auth-submit-label", mode === "setup" ? "正在创建…" : "正在登录…");
+        const payload = { username: username.value.trim(), password: password.value };
+        if (mode === "setup") payload.display_name = displayName.value.trim();
+        try {
+          const response = await fetch(mode === "setup" ? "/api/auth/setup" : "/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify(payload),
+          });
+          let result = {};
+          try { result = await response.json(); } catch (_) {}
+          if (!response.ok) {
+            errorBox.textContent = responseMessage(result, mode === "setup" ? "初始化失败，请检查输入后重试。" : "账号或密码错误。");
+            return;
+          }
+          const requested = new URLSearchParams(location.search).get("next");
+          const fallback = mode === "setup" ? "/admin" : "/portal";
+          const destination = authorizedRequestedDestination(requested, result.user) || safeDestination(result.redirect, fallback);
+          location.replace(destination);
+        } catch (_) {
+          errorBox.textContent = "无法连接服务，请确认平台已启动后重试。";
+        } finally {
+          submit.disabled = false;
+          setText("auth-submit-label", mode === "setup" ? "创建超级管理员" : "登录");
+        }
+      });
+      configureMode();
+    })();
+  </script>
+</body>
+</html>

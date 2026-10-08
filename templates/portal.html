@@ -1,0 +1,3390 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="企业内部经营数据查询门户">
+  <title>企业数据门户</title>
+  <link rel="stylesheet" href="/static/vendor/tabler-icons/tabler-icons.min.css">
+  <link rel="stylesheet" href="/static/css/workbench.css?v=2026091102">
+  <style>
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input { font: inherit; }
+
+    a { color: inherit; }
+
+    .portal-shell {
+      width: min(1480px, calc(100% - 48px));
+      margin: 0 auto;
+    }
+
+    .portal-header {
+      position: sticky;
+      z-index: 50;
+      top: 0;
+      border-bottom: 1px solid rgba(219, 227, 238, .92);
+      background: rgba(255, 255, 255, .94);
+      box-shadow: 0 1px 12px rgba(15, 23, 42, .04);
+      backdrop-filter: blur(14px);
+    }
+
+    .portal-header-inner {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 26px;
+    }
+
+    .portal-brand {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+    }
+
+    .portal-brand-mark {
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 11px;
+      color: #fff;
+      background: var(--brand);
+      box-shadow: 0 7px 17px rgba(37, 99, 235, .23);
+      font-size: 18px;
+    }
+
+    .portal-brand-name {
+      display: block;
+      font-size: 14px;
+      font-weight: 750;
+      letter-spacing: -.01em;
+    }
+
+    .portal-brand-subtitle {
+      display: block;
+      margin-top: 1px;
+      color: var(--text-tertiary);
+      font-size: 10px;
+      letter-spacing: .06em;
+    }
+
+    .portal-nav {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .portal-nav a {
+      padding: 7px 10px;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-size: 12.5px;
+      font-weight: 650;
+      text-decoration: none;
+    }
+
+    .portal-nav a:hover {
+      color: var(--brand-strong);
+      background: var(--brand-soft);
+    }
+
+    .portal-nav a.is-active {
+      color: var(--brand-strong);
+      background: var(--brand-soft);
+    }
+
+    .portal-section-menu {
+      position: relative;
+      display: none;
+      flex: 0 0 auto;
+    }
+
+    .portal-section-menu summary {
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: #334155;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .portal-section-menu summary::-webkit-details-marker { display: none; }
+    .portal-section-menu summary:hover { border-color: var(--brand-line); color: var(--brand-strong); background: var(--brand-soft); }
+    .portal-section-menu summary:focus-visible { outline: 3px solid rgba(37, 99, 235, .72); outline-offset: 2px; }
+
+    .portal-section-menu nav {
+      position: absolute;
+      z-index: 60;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 176px;
+      display: grid;
+      gap: 2px;
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, .14);
+    }
+
+    .portal-section-menu:not([open]) nav { display: none; }
+    .portal-section-menu nav a { padding: 8px 9px; border-radius: 7px; color: var(--text-secondary); font-size: 12px; font-weight: 650; text-decoration: none; }
+    .portal-section-menu nav a:hover { color: var(--brand-strong); background: var(--brand-soft); }
+
+    .portal-header-spacer { flex: 1; }
+
+    [hidden] { display: none !important; }
+
+    .portal-account {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      padding-left: 2px;
+    }
+
+    .portal-account-avatar {
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      border-radius: 10px;
+      color: #fff;
+      background: var(--brand);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .portal-account-meta { min-width: 0; line-height: 1.25; }
+    .portal-account-meta strong { display: block; max-width: 112px; overflow: hidden; color: #334155; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .portal-account-meta span { display: block; max-width: 112px; overflow: hidden; color: var(--text-tertiary); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+
+    .portal-logout {
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: #64748b;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .portal-logout:hover { border-color: #fecaca; color: #dc2626; background: #fff7f7; }
+
+    .admin-entry {
+      min-height: 36px;
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 11px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: #334155;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .admin-entry:hover {
+      border-color: var(--brand-line);
+      color: var(--brand-strong);
+      background: var(--brand-soft);
+    }
+
+    .portal-source-entry { cursor: pointer; }
+
+    .portal-main {
+      display: grid;
+      grid-template-columns: 226px minmax(0, 1fr);
+      column-gap: 22px;
+      padding: 34px 0 52px;
+    }
+
+    .portal-hero {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 24px;
+      margin-bottom: 18px;
+    }
+
+    .portal-hero-copy {
+      position: relative;
+      padding-left: 16px;
+    }
+
+    .portal-hero-copy::before {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 0;
+      width: 2px;
+      background: var(--rail);
+      content: "";
+    }
+
+    .portal-eyebrow {
+      margin-bottom: 4px;
+      color: var(--brand-strong);
+      font-family: var(--font-data);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .13em;
+    }
+
+    .portal-hero h1 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.2;
+      letter-spacing: -.035em;
+    }
+
+    .portal-hero p {
+      max-width: 700px;
+      margin: 8px 0 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .portal-toolbar {
+      display: flex;
+      align-items: end;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, .92);
+      box-shadow: var(--shadow-card);
+    }
+
+    .portal-field label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    #portal-date { width: 154px; }
+
+    .portal-button,
+    .portal-link-button {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 7px 13px;
+      border: 1px solid var(--brand);
+      border-radius: 9px;
+      color: #fff;
+      background: var(--brand);
+      font-size: 12px;
+      font-weight: 750;
+      line-height: 1.2;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .portal-button:hover,
+    .portal-link-button:hover { background: var(--brand-strong); }
+
+    .portal-button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    .portal-button-secondary {
+      border-color: var(--line);
+      color: #334155;
+      background: #fff;
+    }
+
+    .portal-button-secondary:hover {
+      border-color: #b8c5d6;
+      color: var(--ink);
+      background: var(--surface-soft);
+    }
+
+    .freshness-card {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 26px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, .82);
+      font-size: 12px;
+    }
+
+    .freshness-icon {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9px;
+      color: var(--brand-strong);
+      background: var(--brand-soft);
+      font-size: 17px;
+    }
+
+    .freshness-main {
+      min-width: 0;
+      display: grid;
+      gap: 5px;
+    }
+
+    .freshness-main strong {
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .freshness-detail { color: var(--text-tertiary); }
+
+    .freshness-facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 16px;
+      color: var(--text-tertiary);
+      font-size: 11px;
+    }
+
+    .freshness-facts strong {
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      color: #475569;
+      background: #f1f5f9;
+      font-size: 11px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .status-pill::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #94a3b8;
+      content: "";
+    }
+
+    .status-pill.is-good { color: var(--green-text); background: #ecfdf5; }
+    .status-pill.is-good::before { background: var(--green); }
+    .status-pill.is-warning { color: var(--amber-text); background: #fffbeb; }
+    .status-pill.is-warning::before { background: var(--amber); }
+    .status-pill.is-error { color: var(--red-text); background: #fef2f2; }
+    .status-pill.is-error::before { background: var(--red); }
+
+    .portal-category-nav {
+      grid-column: 1;
+      grid-row: 3;
+      align-self: start;
+      position: sticky;
+      z-index: 20;
+      top: 76px;
+      margin-bottom: 0;
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(248, 250, 252, .95);
+      box-shadow: 0 10px 28px rgba(15, 23, 42, .07);
+      backdrop-filter: blur(14px);
+    }
+
+    .portal-category-track {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 6px;
+    }
+
+    .portal-category-tab {
+      position: relative;
+      min-width: 0;
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      overflow: hidden;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      color: var(--text-secondary);
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .portal-category-tab::before {
+      position: absolute;
+      top: 9px;
+      bottom: 9px;
+      left: 0;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: transparent;
+      content: "";
+    }
+
+    .portal-category-tab:hover {
+      color: #334155;
+      background: rgba(255, 255, 255, .72);
+    }
+
+    .portal-category-tab[aria-selected="true"] {
+      border-color: #dbe7fb;
+      color: var(--ink);
+      background: #fff;
+      box-shadow: 0 5px 14px rgba(15, 23, 42, .06);
+    }
+
+    .portal-category-tab[aria-selected="true"]::before { background: var(--brand); }
+
+    .portal-category-icon {
+      width: 38px;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9px;
+      color: #64748b;
+      background: #eef2f7;
+      font-size: 18px;
+    }
+
+    .portal-category-tab[aria-selected="true"] .portal-category-icon {
+      color: var(--brand-strong);
+      background: var(--brand-soft);
+    }
+
+    .portal-category-copy { min-width: 0; }
+
+    .portal-category-copy strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    .portal-category-copy small {
+      display: block;
+      margin-top: 2px;
+      overflow: hidden;
+      color: var(--text-tertiary);
+      font-size: 10.5px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .portal-category-panel { min-height: 360px; }
+
+    .portal-category-panel {
+      grid-column: 2;
+      grid-row: 3;
+      min-width: 0;
+    }
+
+    .portal-category-panel > .portal-section:first-child { margin-top: 0; }
+
+    .portal-section {
+      scroll-margin-top: 88px;
+      margin-top: 28px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 12px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1.3;
+      letter-spacing: -.02em;
+    }
+
+    .section-heading p {
+      margin: 3px 0 0;
+      color: var(--text-tertiary);
+      font-size: 12px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric-card {
+      min-height: 122px;
+      padding: 17px;
+    }
+
+    .metric-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .metric-label i { color: var(--brand); font-size: 16px; }
+
+    .metric-value {
+      min-height: 37px;
+      margin-top: 10px;
+      color: var(--ink);
+      font-size: clamp(22px, 3vw, 28px);
+      font-weight: 780;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+      letter-spacing: -.035em;
+    }
+
+    .metric-note {
+      margin-top: 6px;
+      color: var(--text-tertiary);
+      font-size: 11px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.65fr) minmax(280px, .75fr);
+      gap: 12px;
+    }
+
+    .panel-card { padding: 17px; }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .panel-title span:first-child {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .panel-title i { color: var(--brand); font-size: 17px; }
+
+    .trend-chart {
+      min-height: 255px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .trend-chart svg {
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .trend-chart p { width: 100%; margin: 10px 0 0; color: #64748b; font-size: 12px; }
+
+    .region-list,
+    .ranking-list,
+    .forecast-list {
+      display: grid;
+      gap: 11px;
+    }
+
+    .region-row,
+    .ranking-row {
+      min-width: 0;
+      display: grid;
+      align-items: center;
+      gap: 9px;
+      font-size: 12px;
+    }
+
+    .region-row { grid-template-columns: 56px minmax(70px, 1fr) auto; }
+    .ranking-row { grid-template-columns: 22px minmax(0, 1fr) auto; }
+
+    .region-name,
+    .ranking-name {
+      overflow: hidden;
+      color: #334155;
+      font-weight: 650;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .region-track {
+      height: 7px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #edf2f7;
+    }
+
+    .region-bar {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--brand);
+    }
+
+    .region-value,
+    .ranking-value {
+      color: var(--text-tertiary);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .ranking-index {
+      width: 21px;
+      height: 21px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      color: var(--text-tertiary);
+      background: var(--surface-soft);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .ranking-columns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .ranking-columns.is-single { grid-template-columns: minmax(0, 1fr); }
+
+    .ranking-card { min-width: 0; }
+
+    .ranking-card h3 {
+      margin: 0 0 11px;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    .table-card {
+      overflow: hidden;
+      border-color: #e3eaf3;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, .055);
+    }
+
+    .table-toolbar {
+      display: flex;
+      align-items: end;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line-soft);
+      background: #fbfcfe;
+    }
+
+    .summary-cutoff {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 6px 12px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--line-soft);
+      color: var(--text-tertiary);
+      background: #fff;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .summary-cutoff strong { color: var(--text-secondary); }
+
+    .summary-cutoff-detail { color: var(--text-tertiary); }
+
+    .summary-cutoff-warning {
+      flex-basis: 100%;
+      color: #9a5b13;
+    }
+
+    .table-search { width: min(260px, 100%); }
+
+    .table-search label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .table-search input { width: 100%; }
+
+    .table-meta {
+      flex: 1;
+      color: var(--text-tertiary);
+      font-size: 11px;
+    }
+
+    .table-region {
+      max-height: 560px;
+      overflow: auto;
+      overscroll-behavior: contain;
+      padding: 0 4px 4px;
+      background: #f8fafc;
+    }
+
+    #portal-summary-table {
+      width: 100%;
+      min-width: 860px;
+      border-collapse: separate;
+      border-spacing: 0;
+      color: #475569;
+      font-size: 13px;
+      line-height: 1.55;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #portal-summary-table thead th {
+      position: sticky;
+      z-index: 2;
+      top: 0;
+      padding: 13px 18px 12px;
+      border-bottom: 2px solid #d8e3f0;
+      color: #334155;
+      background: #f1f5f9;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .02em;
+      line-height: 1.35;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    #portal-summary-table thead th:first-child,
+    #portal-summary-table tbody td:first-child { padding-left: 20px; }
+
+    #portal-summary-table thead th.is-index,
+    #portal-summary-table tbody td.is-index,
+    #portal-summary-table tbody td:first-child.is-index {
+      width: 68px;
+      min-width: 68px;
+      max-width: 68px;
+      padding-right: 10px;
+      padding-left: 10px;
+      text-align: center;
+    }
+
+    #portal-summary-table tbody td {
+      height: 54px;
+      padding: 16px 18px;
+      border-bottom: 1px solid #e7edf4;
+      vertical-align: middle;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    #portal-summary-table tbody td:first-child {
+      min-width: 180px;
+      max-width: 260px;
+      overflow-wrap: anywhere;
+      color: var(--ink);
+      font-weight: 700;
+      white-space: normal;
+    }
+
+    #portal-summary-table tbody tr:nth-child(even):not(.row-total) td { background: #fbfcfe; }
+    #portal-summary-table tbody tr:hover td { background: #eef5ff; }
+    #portal-summary-table tbody tr:last-child td { border-bottom: 0; }
+
+    #portal-summary-table tbody tr.row-total td {
+      border-top: 2px solid #bfdbfe;
+      color: #1e3a8a;
+      background: #eff6ff;
+      font-weight: 750;
+    }
+
+    #portal-summary-table thead th,
+    #portal-summary-table tbody td { cursor: pointer; }
+
+    #portal-summary-table tbody tr td.hl-row { background: #dbeafe !important; }
+    #portal-summary-table tbody tr td.hl-col,
+    #portal-summary-table thead tr th.hl-col { background: #fef3c7 !important; }
+    #portal-summary-table tbody tr td.hl-cell {
+      background: #93c5fd !important;
+      box-shadow: inset 0 0 0 2px #60a5fa;
+      color: #172554;
+      font-weight: 800;
+    }
+
+    #portal-summary-table td,
+    #portal-summary-table th { text-align: left; }
+
+    #portal-summary-table td.is-number,
+    #portal-summary-table th.is-number { text-align: right; }
+
+    #portal-summary-table td.is-number { font-family: var(--font-data, ui-monospace, SFMono-Regular, Consolas, monospace); }
+
+    .summary-mobile-list { display: none; }
+
+    .summary-mobile-card {
+      padding: 13px;
+      border: 1px solid #dfe8f2;
+      border-radius: 11px;
+      background: #fff;
+    }
+
+    .summary-mobile-card.is-total { border-color: #bfdbfe; background: #eff6ff; }
+    .summary-mobile-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .summary-mobile-card-title { min-width: 0; color: #173456; font-size: 14px; font-weight: 800; overflow-wrap: anywhere; }
+    .summary-mobile-card-index { flex: 0 0 auto; color: #6b8096; font-size: 11px; font-variant-numeric: tabular-nums; }
+    .summary-mobile-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; margin: 12px 0 0; }
+    .summary-mobile-field { min-width: 0; }
+    .summary-mobile-field dt { color: #7890a6; font-size: 10px; line-height: 1.35; }
+    .summary-mobile-field dd { margin: 2px 0 0; color: #334e6b; font-size: 12px; font-weight: 700; overflow-wrap: anywhere; }
+    .summary-mobile-field dd.is-number { font-family: var(--font-data, ui-monospace, SFMono-Regular, Consolas, monospace); text-align: left; }
+
+    .empty-state {
+      min-height: 130px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 24px;
+      color: var(--text-tertiary);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .empty-state i { font-size: 22px; }
+
+    .forecast-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .forecast-card { padding: 15px; }
+
+    .forecast-label {
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .forecast-value {
+      margin-top: 7px;
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 780;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -.025em;
+    }
+
+    .forecast-note {
+      margin-top: 5px;
+      color: var(--text-tertiary);
+      font-size: 10.5px;
+    }
+
+    .forecast-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, .55fr);
+      gap: 12px;
+    }
+
+    .forecast-row {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line-soft);
+      color: #334155;
+      font-size: 12px;
+    }
+
+    .forecast-row:last-child { border-bottom: 0; }
+
+    .forecast-range {
+      color: var(--text-tertiary);
+      font-size: 10px;
+      text-align: right;
+    }
+
+    .notice-box {
+      padding: 13px;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      color: var(--amber-text);
+      background: #fffbeb;
+      font-size: 11px;
+    }
+
+    .portal-footer {
+      grid-column: 1 / -1;
+      margin-top: 34px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--text-tertiary);
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .is-loading {
+      border-radius: 7px;
+      color: transparent !important;
+      background: linear-gradient(90deg, #f1f5f9 25%, #e7edf5 37%, #f1f5f9 63%);
+      background-size: 400% 100%;
+      animation: portal-shimmer 1.3s ease infinite;
+    }
+
+    @keyframes portal-shimmer {
+      from { background-position: 100% 0; }
+      to { background-position: 0 0; }
+    }
+
+    .portal-spin { animation: portal-spin .8s linear infinite; }
+
+    @keyframes portal-spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 1080px) {
+      .portal-nav { display: none; }
+      .portal-section-menu { display: block; }
+      .metric-grid,
+      .forecast-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    @media (max-width: 760px) {
+      .portal-shell { width: min(100% - 28px, 1480px); }
+      .portal-header-inner { min-height: 58px; }
+      .portal-brand-subtitle { display: none; }
+      .portal-main { display: block; padding-top: 24px; }
+      .portal-hero { grid-template-columns: minmax(0, 1fr); }
+      .portal-toolbar { align-items: stretch; }
+      .portal-field { flex: 1; }
+      #portal-date { width: 100%; }
+      .freshness-card { grid-template-columns: auto minmax(0, 1fr); }
+      .freshness-card .status-pill { grid-column: 1 / -1; justify-self: start; }
+      .portal-category-nav {
+        top: 68px;
+        overflow: visible;
+      }
+      .portal-category-track {
+        width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px;
+      }
+      .portal-category-tab { width: auto; min-height: 62px; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; padding: 8px 9px; }
+      .portal-category-icon { width: 32px; height: 32px; font-size: 16px; }
+      .portal-category-copy small { white-space: normal; }
+      .ranking-columns,
+      .forecast-layout { grid-template-columns: minmax(0, 1fr); }
+      .table-toolbar { flex-wrap: wrap; }
+      .table-search { width: 100%; }
+      .table-meta { order: 3; flex-basis: 100%; }
+      .table-region { max-height: none; overflow: visible; padding: 0 10px 10px; }
+      #portal-summary-table { display: none; }
+      .summary-mobile-list { display: grid; gap: 8px; }
+    }
+
+    @media (max-width: 480px) {
+      .portal-shell { width: min(100% - 20px, 1480px); }
+      .portal-header-inner { gap: 10px; }
+      .portal-brand-name { font-size: 13px; }
+      .portal-account { gap: 5px; }
+      .portal-account-meta { display: block; }
+      .portal-account-meta span { display: none; }
+      .portal-account-meta strong { max-width: 62px; font-size: 11px; }
+      .admin-entry { width: 36px; padding: 0; }
+      .admin-entry > span { display: none; }
+      .portal-section-menu summary { width: 36px; justify-content: center; padding: 0; }
+      .portal-section-menu summary > span { display: none; }
+      .portal-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+      .portal-category-nav { top: 62px; margin-right: 0; margin-left: 0; border-radius: 10px; }
+      .portal-category-tab { width: auto; grid-template-columns: 30px minmax(0, 1fr); padding: 8px; }
+      .portal-category-icon { width: 30px; height: 30px; }
+      .metric-grid,
+      .forecast-grid { grid-template-columns: minmax(0, 1fr); }
+      .metric-card { min-height: 106px; }
+      .section-heading { align-items: start; flex-direction: column; }
+      .trend-chart { min-height: 205px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
+
+    /* 普通用户门户：经营台账视觉层。保持现有数据结构与权限边界，只强化首屏层级。 */
+    body {
+      background-color: #f3f7fb;
+      background-image: linear-gradient(rgba(148, 163, 184, .075) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, .075) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    .portal-header {
+      border-bottom-color: #d7e1ec;
+      background: rgba(248, 251, 254, .94);
+      box-shadow: 0 4px 18px rgba(19, 43, 72, .06);
+    }
+
+    .portal-brand-mark {
+      color: #eaf3ff;
+      background: #173456;
+      box-shadow: 0 8px 18px rgba(23, 52, 86, .22);
+    }
+
+    .portal-brand-name { color: #172f4d; letter-spacing: .015em; }
+    .portal-brand-subtitle { color: #71859d; letter-spacing: .13em; }
+
+    .portal-main { padding-top: 30px; }
+
+    .portal-hero { gap: 30px; margin-bottom: 16px; }
+
+    .portal-hero-copy {
+      min-height: 112px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 18px 22px 18px 24px;
+      border: 1px solid #dce6f0;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .72);
+      box-shadow: 0 8px 24px rgba(19, 43, 72, .045);
+    }
+
+    .portal-hero-copy::before { top: 18px; bottom: 18px; left: 0; width: 4px; border-radius: 0 4px 4px 0; background: #2f76d2; }
+    .portal-hero-copy::after { position: absolute; top: 30px; left: -4px; width: 12px; height: 12px; border: 3px solid #f3f7fb; border-radius: 50%; background: #2f76d2; box-shadow: 0 0 0 1px #2f76d2; content: ""; }
+    .portal-eyebrow { color: #2b6cb0; letter-spacing: .16em; }
+    .portal-hero h1 { color: #132c49; font-size: clamp(26px, 3.1vw, 38px); font-weight: 820; }
+    .portal-hero p { color: #5b7087; }
+
+    .portal-toolbar {
+      min-width: 292px;
+      padding: 14px;
+      border-color: #193b61;
+      background: #173456;
+      box-shadow: 0 12px 26px rgba(23, 52, 86, .2);
+    }
+
+    .portal-field label { color: #b7c9dc; }
+    .portal-toolbar #portal-date { border-color: #cfdae8; color: #173456; background: #f8fbff; }
+    .portal-toolbar .portal-button { border-color: #9ed2c5; color: #103c36; background: #bce7db; }
+    .portal-toolbar .portal-button:hover { border-color: #d6fff4; background: #d6fff4; }
+
+    .freshness-card {
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 22px;
+      border-color: #d8e4ef;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .9);
+      box-shadow: 0 8px 20px rgba(19, 43, 72, .045);
+    }
+
+    .freshness-card::after { position: absolute; right: -34px; bottom: -52px; width: 150px; height: 150px; border: 1px solid rgba(47, 118, 210, .13); border-radius: 50%; box-shadow: 0 0 0 14px rgba(47, 118, 210, .035), 0 0 0 28px rgba(47, 118, 210, .025); content: ""; pointer-events: none; }
+    .freshness-icon { color: #245f9e; background: #e6f0fb; }
+    .freshness-main strong { color: #173456; }
+    .freshness-detail, .freshness-facts { color: #6b8096; }
+    .freshness-facts strong { color: #435d77; }
+
+    .mobile-action-deck { display: none; }
+
+    .mobile-action-kicker {
+      display: block;
+      margin-bottom: 3px;
+      color: #2f76d2;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .mobile-action-title { margin: 0; color: #173456; font-size: 17px; line-height: 1.25; }
+    .mobile-action-note { margin: 4px 0 0; color: #70849a; font-size: 12px; line-height: 1.45; }
+
+    .mobile-date-chip {
+      flex: 0 0 auto;
+      padding: 6px 8px;
+      border: 1px solid #cfe0ef;
+      border-radius: 8px;
+      color: #245f9e;
+      background: #eef6fd;
+      font-size: 12px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mobile-action-button {
+      display: flex;
+      min-height: 46px;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 9px;
+      border: 1px solid #d4e0eb;
+      border-radius: 9px;
+      color: #244463;
+      background: #f7fafc;
+      font-size: 13px;
+      font-weight: 750;
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color .18s ease, background-color .18s ease, transform .18s ease;
+    }
+
+    .mobile-action-button i { color: #2f76d2; font-size: 17px; }
+    .mobile-action-button:hover { border-color: #9fc4e4; background: #eef6fd; }
+    .mobile-action-button:active { transform: translateY(1px); }
+    .mobile-action-button.is-primary { border-color: #173456; color: #f7fbff; background: #173456; }
+    .mobile-action-button.is-primary i { color: #bce7db; }
+    .mobile-action-button:disabled,
+    .mobile-action-button[aria-disabled="true"] { opacity: .52; cursor: not-allowed; pointer-events: none; }
+
+    .mobile-action-status { min-height: 18px; margin: 10px 2px 0; color: #637991; font-size: 12px; }
+    .mobile-action-status.is-error { color: #a04646; }
+
+    .portal-category-nav {
+      border-color: #d6e2ee;
+      border-radius: 12px;
+      background: rgba(235, 242, 249, .92);
+      box-shadow: 0 8px 22px rgba(19, 43, 72, .06);
+    }
+
+    .portal-category-track { gap: 4px; }
+    .portal-category-tab { padding: 9px 11px; border-radius: 9px; }
+    .portal-category-tab[aria-selected="true"] { border-color: #1c426b; color: #f7fbff; background: #173456; box-shadow: 0 7px 16px rgba(23, 52, 86, .2); }
+    .portal-category-tab[aria-selected="true"]::before { background: #bce7db; }
+    .portal-category-tab[aria-selected="true"] .portal-category-icon { color: #d8fff5; background: rgba(188, 231, 219, .16); }
+    .portal-category-tab[aria-selected="true"] .portal-category-copy small { color: #b7c9dc; }
+    .portal-category-icon { color: #52708e; background: #e3edf6; }
+    .portal-category-copy strong { letter-spacing: .015em; }
+
+    .section-heading h2 { color: #173456; }
+    .metric-card { position: relative; overflow: hidden; border-color: #d9e4ef; box-shadow: 0 7px 18px rgba(19, 43, 72, .045); }
+    .metric-card::before { position: absolute; top: 0; right: 18px; left: 18px; height: 3px; border-radius: 0 0 4px 4px; background: #2f76d2; content: ""; }
+    .metric-card:nth-child(2)::before { background: #3e9a8a; }
+    .metric-card:nth-child(3)::before { background: #7d78c9; }
+    .metric-card:nth-child(4)::before { background: #d29b4a; }
+    .metric-label { color: #5e748b; }
+    .metric-label i { color: #2f76d2; }
+    .metric-card:nth-child(2) .metric-label i { color: #3e9a8a; }
+    .metric-card:nth-child(3) .metric-label i { color: #7d78c9; }
+    .metric-card:nth-child(4) .metric-label i { color: #c28533; }
+    .metric-value { color: #173456; }
+    .metric-note { color: #7890a6; }
+
+    .panel-card { border-color: #d9e4ef; box-shadow: 0 7px 18px rgba(19, 43, 72, .045); }
+    .panel-title { color: #294766; }
+    .panel-title i { color: #2f76d2; }
+
+    @media (max-width: 760px) {
+      .portal-main { padding-top: 22px; }
+      .portal-hero-copy { min-height: 0; padding: 16px 18px 16px 20px; }
+      .portal-hero-copy::before { top: 16px; bottom: 16px; }
+      .portal-hero-copy::after { top: 27px; }
+      .portal-toolbar { min-width: 0; }
+      .portal-category-nav { box-shadow: 0 6px 16px rgba(19, 43, 72, .06); }
+
+      .mobile-action-deck {
+        display: block;
+        margin: -6px 0 18px;
+        padding: 14px;
+        border: 1px solid #d8e4ef;
+        border-radius: 14px;
+        background: #ffffff;
+        box-shadow: 0 8px 20px rgba(19, 43, 72, .045);
+      }
+
+      .mobile-action-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .mobile-action-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    }
+
+    @media (max-width: 420px) {
+      .mobile-action-button { font-size: 12px; }
+      .mobile-action-button i { font-size: 16px; }
+    }
+
+    /* 桌面端布局：侧栏负责切换板块，右侧只承载当前内容。 */
+    @media (min-width: 921px) {
+      .portal-main {
+        grid-template-columns: 218px minmax(0, 1fr);
+        grid-template-areas:
+          "nav hero"
+          "nav freshness"
+          "nav panel"
+          "footer footer";
+        column-gap: 26px;
+        align-items: start;
+      }
+
+      .portal-hero { grid-area: hero; }
+      .freshness-card { grid-area: freshness; }
+      .portal-header .portal-nav,
+      .portal-header .portal-section-menu { display: none; }
+      .portal-category-nav {
+        grid-area: nav;
+        top: 84px;
+        margin: 0;
+        padding: 13px 8px 8px;
+        border-color: #193b61;
+        background: #122b47;
+        box-shadow: 0 14px 30px rgba(18, 43, 71, .2);
+      }
+
+      .portal-category-nav::before {
+        display: block;
+        padding: 0 10px 10px;
+        color: #87a4c1;
+        content: "查看板块 / VIEW";
+        font-family: var(--font-data);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .14em;
+      }
+
+      .portal-category-track { gap: 3px; }
+      .portal-category-tab { color: #b7c9dc; }
+      .portal-category-tab:hover { color: #f5fbff; background: rgba(255, 255, 255, .08); }
+      .portal-category-tab[aria-selected="true"] {
+        border-color: transparent;
+        color: #173456;
+        background: #f5fbff;
+        box-shadow: 0 7px 16px rgba(5, 24, 45, .18);
+      }
+      .portal-category-tab[aria-selected="true"]::before { background: #65c3ad; }
+      .portal-category-tab[aria-selected="true"] .portal-category-icon { color: #246d8f; background: #e4f5ef; }
+      .portal-category-tab[aria-selected="true"] .portal-category-copy small { color: #6d8299; }
+      .portal-category-icon { color: #aac3d9; background: rgba(255, 255, 255, .1); }
+      .portal-category-copy strong { color: inherit; }
+      .portal-category-copy small { color: #87a4c1; }
+      .portal-category-panel { grid-area: panel; }
+      .portal-footer { grid-area: footer; }
+    }
+
+    @media (max-width: 920px) {
+      .portal-main { display: block; padding-top: 24px; }
+      .portal-header .portal-section-menu { display: none; }
+      .portal-category-nav { position: sticky; top: 68px; margin: 0 0 20px; overflow-x: auto; }
+      .portal-category-track { width: max-content; display: flex; }
+      .portal-category-tab { width: 210px; }
+    }
+
+    @media (max-width: 760px) {
+      .portal-category-nav::before { display: none; }
+      .portal-category-track {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px;
+      }
+      .portal-category-tab { width: auto; min-width: 0; }
+    }
+
+    /* 手机首屏：先给出状态和核心数字，低频说明与板块切换保持紧凑。 */
+    @media (max-width: 760px) {
+      .portal-hero { gap: 12px; margin-bottom: 10px; }
+      .portal-hero-copy { padding: 12px 16px 12px 18px; }
+      .portal-hero-copy p { display: none; }
+      .portal-toolbar { padding: 10px; }
+
+      .freshness-card {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 8px;
+        margin-bottom: 14px;
+        padding: 10px 12px;
+      }
+      .freshness-card .status-pill {
+        grid-column: auto;
+        justify-self: end;
+      }
+      .freshness-main { gap: 3px; }
+      .freshness-facts { gap: 2px 10px; }
+
+      .mobile-action-deck { margin: -2px 0 12px; padding: 10px; }
+      .mobile-action-head { gap: 8px; margin-bottom: 8px; }
+      .mobile-action-note { display: none; }
+      .mobile-action-button { min-height: 40px; padding: 6px 8px; font-size: 12px; }
+      .mobile-action-status { min-height: 14px; margin-top: 6px; }
+
+      .portal-category-nav {
+        margin-bottom: 12px;
+        padding: 4px;
+        overflow-x: auto;
+        scrollbar-width: thin;
+      }
+      .portal-category-track {
+        width: max-content;
+        display: flex;
+        gap: 4px;
+      }
+      .portal-category-tab {
+        flex: 0 0 160px;
+        min-height: 54px;
+        grid-template-columns: 28px minmax(0, 1fr);
+        padding: 7px 8px;
+      }
+      .portal-category-icon { width: 28px; height: 28px; font-size: 15px; }
+      .portal-category-copy small { white-space: nowrap; }
+    }
+  </style>
+<link rel="stylesheet" href="/static/css/member-watch.css?v=2026091503">
+<script src="/static/js/member-watch.js?v=2026091504"></script>
+</head>
+<body>
+  <a class="skip-link" href="#portal-main">跳到主要内容</a>
+
+  <header class="portal-header">
+    <div class="portal-shell portal-header-inner">
+      <a class="portal-brand" href="/portal" aria-label="返回企业数据门户首页">
+        <span class="portal-brand-mark"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></span>
+        <span>
+          <span id="portal-brand-name" class="portal-brand-name">企业数据门户</span>
+          <span id="portal-brand-subtitle" class="portal-brand-subtitle">INTERNAL DATA PORTAL</span>
+        </span>
+      </a>
+      <nav class="portal-nav" aria-label="门户导航">
+        <a href="#overview" data-portal-category="overview">经营概览</a>
+        <a href="#daily" data-portal-category="daily">每日经营</a>
+        <a href="#summary" data-portal-category="summary">门店明细</a>
+        <a href="#forecast" data-portal-category="forecast">趋势预测</a>
+        <a href="#monitoring" data-portal-category="monitoring" data-role-permission="monitoring.view" hidden>数据监控</a>
+        <a href="#payment" data-portal-category="payment" data-role-permission="payment.view" hidden>货款数据</a>
+      </nav>
+      <details class="portal-section-menu">
+        <summary aria-label="打开页面导航" title="页面导航"><i class="ti ti-menu-2" aria-hidden="true"></i><span>页面导航</span></summary>
+        <nav aria-label="门户导航">
+          <a href="#overview" data-portal-category="overview">经营概览</a>
+          <a href="#daily" data-portal-category="daily">每日经营</a>
+          <a href="#summary" data-portal-category="summary">门店明细</a>
+          <a href="#forecast" data-portal-category="forecast">趋势预测</a>
+          <a href="#monitoring" data-portal-category="monitoring" data-role-permission="monitoring.view" hidden>数据监控</a>
+          <a href="#payment" data-portal-category="payment" data-role-permission="payment.view" hidden>货款数据</a>
+        </nav>
+      </details>
+      <span class="portal-header-spacer"></span>
+      <button id="portal-platform-links-trigger" class="admin-entry portal-source-entry" type="button" aria-haspopup="dialog" aria-controls="platform-links-dialog" title="打开源平台入口">
+        <i class="ti ti-external-link" aria-hidden="true"></i>
+        <span>源平台</span>
+      </button>
+      <a id="portal-admin-entry" class="admin-entry" href="/admin" title="进入管理后台" aria-label="进入管理后台" hidden>
+        <i class="ti ti-settings" aria-hidden="true"></i>
+        <span>管理后台</span>
+      </a>
+      <div id="portal-current-user" class="portal-account" hidden>
+        <span id="portal-current-user-avatar" class="portal-account-avatar" aria-hidden="true">用</span>
+        <span class="portal-account-meta"><strong id="portal-current-user-name">—</strong><span id="portal-current-user-role">—</span></span>
+        <button id="portal-logout-button" class="portal-logout" type="button" aria-label="退出登录" title="退出登录"><i class="ti ti-logout" aria-hidden="true"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="portal-main" class="portal-shell portal-main" tabindex="-1">
+    <div class="portal-hero">
+      <div class="portal-hero-copy">
+        <div id="portal-hero-eyebrow" class="portal-eyebrow">经营数据 · 统一口径</div>
+        <h1 id="portal-hero-title">经营数据一站式查看</h1>
+        <p id="portal-hero-intro">按业务日期查看公司经营概况、门店汇总与预测结果。当前门户仅提供查询与下载，不会修改业务数据。</p>
+      </div>
+      <div class="portal-toolbar" aria-label="数据日期选择">
+        <div class="portal-field">
+          <label for="portal-date">业务日期</label>
+          <input id="portal-date" type="date">
+        </div>
+        <button id="portal-refresh" class="portal-button" type="button">
+          <i class="ti ti-refresh" aria-hidden="true"></i>
+          重新读取
+        </button>
+      </div>
+    </div>
+
+    <div class="freshness-card">
+      <span class="freshness-icon"><i class="ti ti-database" aria-hidden="true"></i></span>
+      <div class="freshness-main">
+        <strong id="freshness-status" role="status" aria-live="polite" aria-atomic="true">正在读取数据状态…</strong>
+        <span id="freshness-detail" class="freshness-detail">请选择业务日期</span>
+        <span class="freshness-facts">
+          <span>最后采集：<strong id="freshness-updated">—</strong></span>
+          <span>数据源覆盖：<strong id="freshness-coverage">—</strong></span>
+          <span>下次自动更新：<strong id="freshness-next-run">—</strong></span>
+        </span>
+      </div>
+      <span id="completeness-pill" class="status-pill">检查中</span>
+    </div>
+
+    <section id="mobile-action-deck" class="mobile-action-deck" aria-labelledby="mobile-action-title">
+      <div class="mobile-action-head">
+        <div>
+          <span class="mobile-action-kicker">PHONE VIEW</span>
+          <h2 id="mobile-action-title" class="mobile-action-title">今天要做什么</h2>
+          <p id="mobile-action-note" class="mobile-action-note">先选业务日期，再查看、获取或下载数据。</p>
+        </div>
+        <span id="mobile-date-chip" class="mobile-date-chip">—</span>
+      </div>
+      <div class="mobile-action-grid">
+        <button id="mobile-overview-action" class="mobile-action-button" type="button">
+          <i class="ti ti-layout-dashboard" aria-hidden="true"></i>
+          查看概览
+        </button>
+        <button id="mobile-collect-action" class="mobile-action-button is-primary" type="button" data-role-permission="admin.access" hidden>
+          <i class="ti ti-cloud-download" aria-hidden="true"></i>
+          获取本月数据
+        </button>
+        <a id="mobile-summary-download" class="mobile-action-button" href="#" download hidden>
+          <i class="ti ti-file-spreadsheet" aria-hidden="true"></i>
+          下载 Excel
+        </a>
+        <a id="mobile-boss-report-download" class="mobile-action-button" href="#" download hidden>
+          <i class="ti ti-file-report" aria-hidden="true"></i>
+          下载老板报表
+        </a>
+      </div>
+      <p id="mobile-action-status" class="mobile-action-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <nav class="portal-category-nav" aria-label="经营数据分类">
+      <div class="portal-category-track" role="tablist" aria-label="选择要查看的数据板块">
+        <button id="portal-category-overview" class="portal-category-tab" type="button" role="tab" aria-selected="true" aria-controls="portal-panel-overview" data-portal-category="overview">
+          <span class="portal-category-icon"><i class="ti ti-layout-dashboard" aria-hidden="true"></i></span>
+          <span class="portal-category-copy"><strong>经营概览</strong><small>核心指标与月度走势</small></span>
+        </button>
+        <button id="portal-category-daily" class="portal-category-tab" type="button" role="tab" aria-selected="false" aria-controls="portal-panel-daily" data-portal-category="daily" tabindex="-1">
+          <span class="portal-category-icon"><i class="ti ti-calendar-stats" aria-hidden="true"></i></span>
+          <span class="portal-category-copy"><strong>每日经营</strong><small>门店当日收入与排名</small></span>
+        </button>
+        <button id="portal-category-summary" class="portal-category-tab" type="button" role="tab" aria-selected="false" aria-controls="portal-panel-summary" data-portal-category="summary" tabindex="-1">
+          <span class="portal-category-icon"><i class="ti ti-building-store" aria-hidden="true"></i></span>
+          <span class="portal-category-copy"><strong>门店明细</strong><small>汇总表、筛选与下载</small></span>
+        </button>
+        <button id="portal-category-forecast" class="portal-category-tab" type="button" role="tab" aria-selected="false" aria-controls="portal-panel-forecast" data-portal-category="forecast" tabindex="-1">
+          <span class="portal-category-icon"><i class="ti ti-chart-dots" aria-hidden="true"></i></span>
+          <span class="portal-category-copy"><strong>趋势预测</strong><small>月末预估与目标差距</small></span>
+        </button>
+        <button id="portal-category-monitoring" class="portal-category-tab" type="button" role="tab" aria-selected="false" aria-controls="portal-panel-monitoring" data-portal-category="monitoring" data-role-permission="monitoring.view" tabindex="-1" hidden>
+          <span class="portal-category-icon"><i class="ti ti-radar" aria-hidden="true"></i></span>
+          <span class="portal-category-copy"><strong>数据监控</strong><small>会员资产与异常提醒</small></span>
+        </button>
+        <button id="portal-category-payment" class="portal-category-tab" type="button" role="tab" aria-selected="false" aria-controls="portal-panel-payment" data-portal-category="payment" data-role-permission="payment.view" tabindex="-1" hidden>
+          <span class="portal-category-icon"><i class="ti ti-report-money" aria-hidden="true"></i></span>
+          <span class="portal-category-copy"><strong>货款数据</strong><small>原始明细与累计核算</small></span>
+        </button>
+      </div>
+    </nav>
+
+    <div id="portal-panel-overview" class="portal-category-panel" role="tabpanel" aria-labelledby="portal-category-overview">
+    <section id="overview" class="portal-section" aria-labelledby="overview-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="overview-title">经营总览</h2>
+          <p>收入金额单位为人民币，完成率依据当前月度目标计算。</p>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <article class="card metric-card">
+          <div class="metric-label"><i class="ti ti-currency-yuan" aria-hidden="true"></i>当日收入</div>
+          <div id="kpi-today" class="metric-value">—</div>
+          <div id="kpi-today-note" class="metric-note">等待数据</div>
+        </article>
+        <article class="card metric-card">
+          <div class="metric-label"><i class="ti ti-calendar-stats" aria-hidden="true"></i>本月累计</div>
+          <div id="kpi-month" class="metric-value">—</div>
+          <div id="kpi-month-note" class="metric-note">等待数据</div>
+        </article>
+        <article class="card metric-card">
+          <div class="metric-label"><i class="ti ti-target-arrow" aria-hidden="true"></i>目标完成率</div>
+          <div id="kpi-completion" class="metric-value">—</div>
+          <div id="kpi-completion-note" class="metric-note">等待数据</div>
+        </article>
+        <article class="card metric-card">
+          <div class="metric-label"><i class="ti ti-chart-arrows-vertical" aria-hidden="true"></i>本月日均</div>
+          <div id="kpi-average" class="metric-value">—</div>
+          <div id="kpi-average-note" class="metric-note">等待数据</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="bigscreen" class="portal-section" aria-labelledby="bigscreen-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="bigscreen-title">月度数据简要</h2>
+          <p>快速了解本月收入走势、区域分布和门店排名。</p>
+        </div>
+      </div>
+      <div class="dashboard-grid">
+        <article class="card panel-card">
+          <div class="panel-title">
+            <span><i class="ti ti-chart-line" aria-hidden="true"></i>本月每日收入趋势</span>
+            <small id="trend-unit">单位：万元</small>
+          </div>
+          <div id="trend-chart" class="trend-chart">
+            <div class="empty-state"><i class="ti ti-chart-line" aria-hidden="true"></i><span>等待趋势数据</span></div>
+          </div>
+        </article>
+        <article class="card panel-card">
+          <div class="panel-title"><span><i class="ti ti-chart-pie-2" aria-hidden="true"></i>区域收入分布</span></div>
+          <div id="region-list" class="region-list">
+            <div class="empty-state"><span>等待区域数据</span></div>
+          </div>
+        </article>
+      </div>
+      <div id="overview-ranking-columns" class="ranking-columns is-single">
+        <article class="card panel-card ranking-card">
+          <h3><i class="ti ti-trophy" aria-hidden="true"></i> 本月门店 TOP 3</h3>
+          <div id="ranking-cn" class="ranking-list"></div>
+        </article>
+        <article id="ranking-hk-card" class="card panel-card ranking-card" hidden aria-hidden="true">
+          <h3><i class="ti ti-trophy" aria-hidden="true"></i> 香港门店 TOP 3</h3>
+          <div id="ranking-hk" class="ranking-list"></div>
+        </article>
+      </div>
+    </section>
+    </div>
+
+    <div id="portal-panel-summary" class="portal-category-panel" role="tabpanel" aria-labelledby="portal-category-summary" hidden>
+    <section id="summary" class="portal-section" aria-labelledby="summary-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="summary-title">门店汇总数据</h2>
+          <p>表格与 Excel 均展示所选月份截至该日，至少有一项非零数值的门店。</p>
+        </div>
+      </div>
+      <div class="card table-card">
+        <div class="table-toolbar">
+          <div class="table-search">
+            <label for="summary-search">筛选表格</label>
+            <input id="summary-search" type="text" placeholder="输入门店、负责人或其他关键词">
+          </div>
+          <span id="summary-count" class="table-meta">正在读取…</span>
+          <a id="summary-download" class="portal-link-button portal-button-secondary" href="#" download hidden>
+            <i class="ti ti-download" aria-hidden="true"></i>
+            下载 Excel
+          </a>
+          <a id="boss-report-download" class="portal-link-button portal-button-secondary" href="#" download hidden>
+            <i class="ti ti-file-spreadsheet" aria-hidden="true"></i>
+            下载老板报表
+          </a>
+        </div>
+        <div id="summary-cutoff" class="summary-cutoff" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+        <div id="summary-table-region" class="table-region" tabindex="0" aria-label="门店汇总数据">
+          <table id="portal-summary-table" class="summary">
+            <caption class="sr-only">选定业务日期的门店经营汇总数据</caption>
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+          <div id="summary-mobile-list" class="summary-mobile-list" aria-label="门店汇总数据卡片" hidden></div>
+          <div id="summary-empty" class="empty-state">
+            <i class="ti ti-table-off" aria-hidden="true"></i>
+            <span>等待汇总数据</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    </div>
+
+    <div id="portal-panel-daily" class="portal-category-panel" role="tabpanel" aria-labelledby="portal-category-daily" hidden>
+    <section id="daily" class="portal-section" aria-labelledby="daily-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="daily-title">每日经营数据</h2>
+          <p>单日收入由相邻累计快照计算；数据缺失或历史口径未验证时会明确提示。</p>
+        </div>
+        <div class="portal-field"><label for="daily-venue">门店</label><select id="daily-venue"><option value="">全部门店</option></select></div>
+      </div>
+      <article class="card daily-workspace">
+        <div id="daily-status" class="daily-status-strip" role="status" aria-live="polite" aria-atomic="true">
+          <span class="daily-status-icon"><i class="ti ti-info-circle" aria-hidden="true"></i></span>
+          <div class="daily-status-copy"><div class="daily-status-title">正在读取每日经营数据…</div><div class="daily-status-note">请稍候</div></div>
+          <span class="daily-status-badge">读取中</span>
+        </div>
+        <div class="daily-kpi-grid">
+          <article class="daily-kpi daily-kpi-primary"><div id="daily-total-label" class="daily-kpi-label">单日总收入</div><div id="daily-total" class="daily-kpi-value">—</div><div id="daily-known" class="daily-kpi-note">等待数据</div></article>
+          <article class="daily-kpi"><div class="daily-kpi-label">有收入门店</div><div id="daily-income-stores" class="daily-kpi-value">—</div><div id="daily-income-stores-note" class="daily-kpi-note">等待数据</div></article>
+          <article class="daily-kpi"><div class="daily-kpi-label">店均收入</div><div id="daily-average" class="daily-kpi-value">—</div><div id="daily-average-note" class="daily-kpi-note">按有效门店计算</div></article>
+          <article class="daily-kpi"><div id="daily-top-label" class="daily-kpi-label">最高门店</div><div id="daily-top-store" class="daily-kpi-value is-name">—</div><div id="daily-top-store-note" class="daily-kpi-note">等待数据</div></article>
+        </div>
+        <div id="daily-platform-legend" class="daily-platform-legend" aria-label="平台颜色图例"></div>
+        <div class="daily-content-grid">
+          <div class="daily-ranking-column">
+            <div id="daily-region-grid" class="daily-region-grid is-single">
+              <section class="daily-region-panel" aria-labelledby="daily-mainland-title">
+                <div class="daily-region-head"><div><span class="daily-region-kicker">ACTIVE STORES</span><h3 id="daily-mainland-title" class="daily-region-title">在营门店排行榜</h3></div><span id="daily-mainland-meta" class="daily-region-meta">等待数据</span></div>
+                <div id="daily-mainland-ranking" class="daily-store-ranking"></div>
+              </section>
+              <section id="daily-hongkong-panel" class="daily-region-panel" aria-labelledby="daily-hongkong-title" hidden aria-hidden="true">
+                <div class="daily-region-head"><div><span class="daily-region-kicker">HONG KONG</span><h3 id="daily-hongkong-title" class="daily-region-title">香港门店排行榜</h3></div><span id="daily-hongkong-meta" class="daily-region-meta">等待数据</span></div>
+                <div id="daily-hongkong-ranking" class="daily-store-ranking"></div>
+              </section>
+            </div>
+          </div>
+          <aside id="daily-store-detail-panel" class="daily-store-detail-panel" aria-labelledby="daily-store-detail-title">
+            <div class="daily-store-detail-head"><div><span class="daily-region-kicker">SELECTED STORE</span><h3 id="daily-store-detail-title" class="daily-region-title">请选择门店</h3><p id="daily-store-detail-meta" class="daily-store-detail-meta">点击左侧排行榜中的门店，查看收入构成</p></div><i class="ti ti-chart-donut-4 daily-store-detail-icon" aria-hidden="true"></i></div>
+            <div id="daily-store-detail-body" class="daily-detail-body daily-store-detail-body"><div class="daily-detail-placeholder daily-detail-placeholder-chart"><div class="daily-donut" role="img" aria-label="等待每日经营数据的收入构成环形图"><div class="daily-donut-center">—<small>等待门店数据</small></div></div><span>等待门店数据</span><small>数据加载后默认显示排行第一家门店</small></div></div>
+          </aside>
+        </div>
+      </article>
+    </section>
+    </div>
+
+    <dialog id="daily-store-dialog" class="daily-detail-dialog" aria-labelledby="daily-store-dialog-title">
+      <div class="daily-detail-shell">
+        <header class="daily-detail-head"><div><span class="daily-detail-kicker">门店收入构成</span><h2 id="daily-store-dialog-title">—</h2><p id="daily-store-dialog-meta">—</p></div><button id="daily-store-dialog-close" type="button" class="daily-detail-close" aria-label="关闭门店收入构成"><i class="ti ti-x" aria-hidden="true"></i></button></header>
+        <div id="daily-store-dialog-body" class="daily-detail-body"></div>
+      </div>
+    </dialog>
+
+    <div id="portal-panel-forecast" class="portal-category-panel" role="tabpanel" aria-labelledby="portal-category-forecast" hidden>
+    <section id="forecast" class="portal-section" aria-labelledby="forecast-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="forecast-title">预测分析</h2>
+          <p>依据历史累计收入进行确定性推演，预测结果不代表经营承诺。</p>
+        </div>
+      </div>
+      <div class="forecast-grid">
+        <article class="card forecast-card">
+          <div class="forecast-label">月末预测收入</div>
+          <div id="forecast-end" class="forecast-value">—</div>
+          <div id="forecast-end-note" class="forecast-note">等待预测数据</div>
+        </article>
+        <article class="card forecast-card">
+          <div class="forecast-label">预测完成率</div>
+          <div id="forecast-rate" class="forecast-value">—</div>
+          <div id="forecast-rate-note" class="forecast-note">等待预测数据</div>
+        </article>
+        <article class="card forecast-card">
+          <div class="forecast-label">距预测目标</div>
+          <div id="forecast-gap" class="forecast-value">—</div>
+          <div id="forecast-gap-note" class="forecast-note">等待预测数据</div>
+        </article>
+        <article class="card forecast-card">
+          <div class="forecast-label">达标所需日均</div>
+          <div id="forecast-needed" class="forecast-value">—</div>
+          <div id="forecast-needed-note" class="forecast-note">等待预测数据</div>
+        </article>
+      </div>
+      <div class="forecast-layout">
+        <article class="card panel-card">
+          <div class="panel-title"><span><i class="ti ti-chart-dots" aria-hidden="true"></i>未来月份趋势</span></div>
+          <div id="forecast-list" class="forecast-list">
+            <div class="empty-state"><span>等待趋势预测</span></div>
+          </div>
+        </article>
+        <aside class="notice-box">
+          <strong><i class="ti ti-info-circle" aria-hidden="true"></i> 使用说明</strong>
+          <p>预测以现有历史数据和当前月度目标为基础。样本不足、缺失采集或上游修正都会影响结果，请结合经营实际判断。</p>
+          <p id="forecast-method">预测方法：等待数据</p>
+        </aside>
+      </div>
+    </section>
+    </div>
+
+    <div id="portal-panel-monitoring" class="portal-category-panel" role="tabpanel" aria-labelledby="portal-category-monitoring" hidden>
+    <section id="monitoring" class="portal-section" aria-labelledby="monitoring-title">
+      <div class="section-heading"><div><h2 id="monitoring-title">数据监控</h2><p>仅展示当前账号可见门店的会员资产变动和异常概况。</p></div></div>
+      <div class="metric-grid">
+        <article class="card metric-card"><span class="metric-label">可见门店</span><strong id="portal-monitoring-venues" class="metric-value">—</strong></article>
+        <article class="card metric-card"><span class="metric-label">交易笔数</span><strong id="portal-monitoring-transactions" class="metric-value">—</strong></article>
+        <article class="card metric-card"><span class="metric-label">异常提醒</span><strong id="portal-monitoring-alerts" class="metric-value">—</strong></article>
+      </div>
+      <article class="card panel-card"><div class="panel-title"><span><i class="ti ti-radar" aria-hidden="true"></i>监控状态</span><span id="portal-monitoring-status" class="status-pill">等待读取</span></div><p id="portal-monitoring-note" class="forecast-note">请选择业务日期后读取监控数据。</p></article>
+      <div id="portal-member-watch" class="member-watch" aria-live="polite"></div>
+    </section>
+    </div>
+
+    <div id="portal-panel-payment" class="portal-category-panel" role="tabpanel" aria-labelledby="portal-category-payment" hidden>
+    <section id="payment" class="portal-section" aria-labelledby="payment-title">
+      <div class="section-heading"><div><h2 id="payment-title">货款数据</h2><p>查看当前账号可见门店的原始货款和累计核算结果；上传与修订仍需货款管理权限。</p></div></div>
+      <div class="metric-grid">
+        <article class="card metric-card"><span class="metric-label">月末基础货款</span><strong id="portal-payment-base" class="metric-value">—</strong></article>
+        <article class="card metric-card"><span class="metric-label">月末积分金额</span><strong id="portal-payment-points" class="metric-value">—</strong></article>
+        <article class="card metric-card"><span class="metric-label">当前日期明细</span><strong id="portal-payment-rows" class="metric-value">—</strong></article>
+      </div>
+      <article class="card panel-card"><div class="panel-title"><span><i class="ti ti-report-money" aria-hidden="true"></i>读取说明</span><span id="portal-payment-status" class="status-pill">等待读取</span></div><p id="portal-payment-note" class="forecast-note">请选择业务日期后读取货款数据。</p></article>
+    </section>
+    </div>
+
+    <footer class="portal-footer">
+      内部数据仅供授权人员使用 · 页面只读 · 数据口径以平台当前汇总规则为准
+    </footer>
+  </main>
+
+  <dialog id="platform-links-dialog" class="daily-detail-dialog source-platform-dialog" aria-labelledby="platform-links-dialog-title" aria-describedby="platform-links-dialog-description">
+    <div class="daily-detail-shell">
+      <header class="daily-detail-head">
+        <div><span class="daily-detail-kicker">源数据追查</span><h2 id="platform-links-dialog-title">源平台入口</h2><p id="platform-links-dialog-description">从当前门户直接打开各平台后台或源文档</p></div>
+        <button id="platform-links-close" type="button" class="daily-detail-close" aria-label="关闭源平台入口"><i class="ti ti-x" aria-hidden="true"></i></button>
+      </header>
+      <div class="source-platform-body">
+        <div class="source-platform-summary"><i class="ti ti-route" aria-hidden="true"></i><strong id="platform-links-summary">正在读取入口…</strong><span>点击后将在新标签页打开</span></div>
+        <div id="platform-links-list" class="source-platform-grid" role="list" aria-live="polite"></div>
+        <p class="source-platform-footnote">这里只提供人工核查入口，不会把采集账号、Cookie 或令牌带到链接中。平台登录状态由各平台自行管理。</p>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="portal-live" class="sr-only" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const state = {
+        controller: null,
+        sequence: 0,
+        summary: { columns: [], rows: [] },
+        dailyRows: [],
+        dailyDate: "",
+        dailySelectedVenue: "",
+        user: null,
+        permissions: new Set(),
+        csrfToken: "",
+        redirecting: false,
+        platformLinks: [],
+        platformLinksById: new Map(),
+        platformLinksLoaded: false,
+        platformLinksPromise: null,
+        platformLinksError: "",
+        platformLinksReturnFocus: null,
+        collectionPollTimer: null,
+      };
+      const storeMode = location.pathname === "/store";
+
+      const byId = (id) => document.getElementById(id);
+      const dateInput = byId("portal-date");
+      const refreshButton = byId("portal-refresh");
+      const mobileOverviewAction = byId("mobile-overview-action");
+      const mobileCollectAction = byId("mobile-collect-action");
+      const mobileSummaryDownload = byId("mobile-summary-download");
+      const mobileBossReportDownload = byId("mobile-boss-report-download");
+      const summarySearch = byId("summary-search");
+      const dailyVenueInput = byId("daily-venue");
+      const portalCategories = ["overview", "daily", "summary", "forecast", "monitoring", "payment"];
+      const portalCategoryTabs = Array.from(document.querySelectorAll('.portal-category-tab[role="tab"]'));
+
+      function categoryFromHash(hash) {
+        const target = String(hash || "").replace(/^#/, "");
+        return {
+          overview: "overview",
+          bigscreen: "overview",
+          daily: "daily",
+          summary: "summary",
+          forecast: "forecast",
+          monitoring: "monitoring",
+          payment: "payment",
+        }[target] || "overview";
+      }
+
+      function activatePortalCategory(category, { updateHash = false, moveFocus = false } = {}) {
+        const requestedTab = byId(`portal-category-${category}`);
+        const selected = portalCategories.includes(category) && requestedTab && !requestedTab.hidden ? category : "overview";
+        portalCategories.forEach((item) => {
+          const tab = byId(`portal-category-${item}`);
+          const panel = byId(`portal-panel-${item}`);
+          const active = item === selected;
+          tab.setAttribute("aria-selected", active ? "true" : "false");
+          tab.tabIndex = active ? 0 : -1;
+          panel.hidden = !active;
+          if (active && moveFocus) tab.focus();
+        });
+        document.querySelectorAll(".portal-nav [data-portal-category], .portal-section-menu [data-portal-category]").forEach((link) => {
+          const active = link.dataset.portalCategory === selected;
+          link.classList.toggle("is-active", active);
+          if (active) link.setAttribute("aria-current", "page");
+          else link.removeAttribute("aria-current");
+        });
+        if (updateHash) history.replaceState(null, "", `#${selected}`);
+      }
+
+      document.querySelectorAll("[data-portal-category]").forEach((control) => {
+        control.addEventListener("click", (event) => {
+          event.preventDefault();
+          activatePortalCategory(control.dataset.portalCategory, { updateHash: true });
+          control.closest("details")?.removeAttribute("open");
+        });
+      });
+
+      portalCategoryTabs.forEach((tab, index) => {
+        tab.addEventListener("keydown", (event) => {
+          const visibleTabs = portalCategoryTabs.filter((item) => !item.hidden);
+          const visibleIndex = visibleTabs.indexOf(tab);
+          if (visibleIndex < 0) return;
+          let nextIndex = null;
+          if (event.key === "ArrowRight") nextIndex = (visibleIndex + 1) % visibleTabs.length;
+          if (event.key === "ArrowLeft") nextIndex = (visibleIndex - 1 + visibleTabs.length) % visibleTabs.length;
+          if (event.key === "Home") nextIndex = 0;
+          if (event.key === "End") nextIndex = visibleTabs.length - 1;
+          if (nextIndex == null) return;
+          event.preventDefault();
+          activatePortalCategory(visibleTabs[nextIndex].dataset.portalCategory, { updateHash: true, moveFocus: true });
+        });
+      });
+
+      window.addEventListener("hashchange", () => activatePortalCategory(categoryFromHash(location.hash)));
+      activatePortalCategory(categoryFromHash(location.hash));
+
+      const KNOWN_PERMISSIONS = [
+        "portal.view", "portal.download", "boss_report.download", "monitoring.view",
+        "payment.view", "payment.manage", "admin.access", "users.manage",
+      ];
+
+      function normalizePermissions(value) {
+        const selected = new Set(Array.isArray(value)
+          ? value.filter((permission) => KNOWN_PERMISSIONS.includes(permission))
+          : (value && typeof value === "object" ? KNOWN_PERMISSIONS.filter((permission) => Boolean(value[permission])) : []));
+        if (selected.has("portal.download") || selected.has("boss_report.download") || selected.has("admin.access")) selected.add("portal.view");
+        if (selected.has("payment.manage")) selected.add("payment.view");
+        if (selected.has("users.manage")) {
+          selected.add("admin.access");
+          selected.add("portal.view");
+        }
+        return KNOWN_PERMISSIONS.filter((permission) => selected.has(permission));
+      }
+
+      function hasPermission(permission) {
+        return state.permissions.has(permission)
+          || (permission !== "users.manage" && state.permissions.has("admin.access"));
+      }
+
+      function currentRoleLabel() {
+        if (KNOWN_PERMISSIONS.every((permission) => state.permissions.has(permission))) return "超级管理员";
+        if (state.permissions.has("users.manage")) return "用户管理员";
+        if (state.permissions.has("admin.access")) return "后台人员";
+        if (state.user && state.user.scope_type === "venues") return "门店负责人";
+        if (state.permissions.has("payment.manage")) return "货款管理员";
+        if (state.permissions.has("boss_report.download") && state.permissions.has("monitoring.view")) return "老板 / 财务";
+        if (state.permissions.has("portal.download")) return "数据下载者";
+        if (state.permissions.has("portal.view")) return "数据查看者";
+        return "无访问权限";
+      }
+
+      function configurePortalMode() {
+        if (!storeMode) return;
+        document.title = "门店经营看板 · 企业数据平台";
+        text("portal-brand-name", "门店经营看板");
+        text("portal-brand-subtitle", "STORE OPERATIONS");
+        text("portal-hero-eyebrow", "门店数据 · 权限范围内");
+        text("portal-hero-title", "我的门店经营数据");
+        text("portal-hero-intro", "这里仅展示管理员分配给当前账号的门店数据，可按日期查看并下载，不会修改业务数据。");
+      }
+
+      function redirectToLogin() {
+        if (state.redirecting) return;
+        state.redirecting = true;
+        const next = location.pathname + location.search + location.hash;
+        location.assign(`/login?next=${encodeURIComponent(next)}`);
+      }
+
+      async function portalFetch(input, init = {}) {
+        const options = { ...init };
+        const method = String(options.method || "GET").toUpperCase();
+        if (!["GET", "HEAD", "OPTIONS", "TRACE"].includes(method) && state.csrfToken) {
+          const headers = new Headers(options.headers || {});
+          headers.set("X-CSRF-Token", state.csrfToken);
+          options.headers = headers;
+        }
+        const response = await fetch(input, options);
+        if (response.status === 401) redirectToLogin();
+        return response;
+      }
+
+      function normalizePlatformLinkUrl(value) {
+        try {
+          const url = new URL(String(value || ""));
+          return url.protocol === "https:" && !url.username && !url.password && !url.search && !url.hash ? url.href : "";
+        } catch (_) {
+          return "";
+        }
+      }
+
+      function platformLinkKindLabel(item) {
+        return ({ console: "业务后台", document: "在线源文档", local: "本地文件数据源", unavailable: "未配置安全入口" })[item && item.kind] || "未配置安全入口";
+      }
+
+      function platformLinkActionLabel(item) {
+        return item && item.kind === "document" ? "打开文档" : "打开后台";
+      }
+
+      function normalizePlatformLinkItem(item) {
+        const id = String(item && item.id || "");
+        const name = String(item && item.name || id || "未命名平台");
+        const rawKind = item && item.kind;
+        const kind = ["console", "document", "local", "unavailable"].includes(rawKind) ? rawKind : "unavailable";
+        const url = normalizePlatformLinkUrl(item && item.url);
+        return { id, name, kind: url ? kind : (kind === "local" ? "local" : "unavailable"), url };
+      }
+
+      function renderPlatformLinks() {
+        const list = byId("platform-links-list");
+        const summary = byId("platform-links-summary");
+        if (!list || !summary) return;
+        list.replaceChildren();
+        if (!state.platformLinksLoaded) {
+          summary.textContent = state.platformLinksError ? "入口读取失败" : "正在读取入口…";
+          const empty = document.createElement("div");
+          empty.className = "daily-empty-inline";
+          empty.textContent = state.platformLinksError || "正在读取源平台入口";
+          list.appendChild(empty);
+          return;
+        }
+        const available = state.platformLinks.filter((item) => item.url).length;
+        summary.textContent = `${available} / ${state.platformLinks.length} 个数据源可直接打开`;
+        state.platformLinks.forEach((item) => {
+          const card = document.createElement("article");
+          card.className = `source-platform-card${item.url ? "" : " is-unavailable"}`;
+          card.setAttribute("role", "listitem");
+          const mark = document.createElement("span");
+          mark.className = "source-platform-mark";
+          mark.textContent = (item.name.trim().charAt(0) || "源").toUpperCase();
+          mark.setAttribute("aria-hidden", "true");
+          const copy = document.createElement("span");
+          copy.className = "source-platform-copy";
+          const name = document.createElement("strong");
+          name.textContent = item.name;
+          const kind = document.createElement("span");
+          kind.className = "source-platform-kind";
+          kind.textContent = platformLinkKindLabel(item);
+          copy.append(name, kind);
+          if (item.url) {
+            const link = document.createElement("a");
+            link.className = "source-platform-action";
+            link.href = item.url;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.referrerPolicy = "no-referrer";
+            link.setAttribute("aria-label", `${platformLinkActionLabel(item)}：${item.name}（新标签页）`);
+            const label = document.createElement("span");
+            label.textContent = platformLinkActionLabel(item);
+            const icon = document.createElement("i");
+            icon.className = "ti ti-external-link";
+            icon.setAttribute("aria-hidden", "true");
+            link.append(label, icon);
+            card.append(mark, copy, link);
+          } else {
+            const unavailable = document.createElement("span");
+            unavailable.className = "source-platform-unavailable";
+            unavailable.textContent = item.kind === "local" ? "本地数据" : "无安全入口";
+            card.append(mark, copy, unavailable);
+          }
+          list.appendChild(card);
+        });
+      }
+
+      async function loadPlatformLinks(force = false) {
+        if (state.platformLinksLoaded && !force) return state.platformLinks;
+        if (state.platformLinksPromise && !force) return state.platformLinksPromise;
+        state.platformLinksError = "";
+        renderPlatformLinks();
+        state.platformLinksPromise = (async () => {
+          try {
+            const response = await portalFetch("/api/portal/platform-links", { headers: { Accept: "application/json" } });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || "无法读取源平台入口");
+            const items = Array.isArray(payload.platforms) ? payload.platforms : [];
+            state.platformLinks = items.map(normalizePlatformLinkItem).filter((item) => item.id);
+            state.platformLinksById = new Map(state.platformLinks.map((item) => [item.id, item]));
+            state.platformLinksLoaded = true;
+            return state.platformLinks;
+          } catch (_) {
+            state.platformLinks = [];
+            state.platformLinksById = new Map();
+            state.platformLinksLoaded = false;
+            state.platformLinksError = "源平台入口读取失败，请稍后重试";
+            return [];
+          } finally {
+            state.platformLinksPromise = null;
+            renderPlatformLinks();
+          }
+        })();
+        return state.platformLinksPromise;
+      }
+
+      function openPlatformLinks(trigger) {
+        const dialog = byId("platform-links-dialog");
+        if (!dialog) return;
+        state.platformLinksReturnFocus = trigger || document.activeElement;
+        if (!dialog.open) dialog.showModal();
+        byId("platform-links-close").focus();
+        loadPlatformLinks(Boolean(state.platformLinksError));
+      }
+
+      function closePlatformLinks() {
+        const dialog = byId("platform-links-dialog");
+        if (dialog && dialog.open) dialog.close();
+      }
+
+      function restorePlatformLinksFocus() {
+        const target = state.platformLinksReturnFocus;
+        state.platformLinksReturnFocus = null;
+        if (target && target.isConnected) target.focus();
+      }
+
+      function platformLinkInlineElement(platformId) {
+        const item = state.platformLinksById.get(String(platformId || ""));
+        if (item && item.url) {
+          const link = document.createElement("a");
+          link.className = "daily-platform-source";
+          link.href = item.url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.referrerPolicy = "no-referrer";
+          link.title = `打开${item.name}源平台核查数据`;
+          link.setAttribute("aria-label", `${link.title}（新标签页）`);
+          const label = document.createElement("span");
+          label.className = "daily-platform-source-label";
+          label.textContent = "追查";
+          const icon = document.createElement("i");
+          icon.className = "ti ti-external-link";
+          icon.setAttribute("aria-hidden", "true");
+          link.append(label, icon);
+          return link;
+        }
+        const unavailable = document.createElement("span");
+        unavailable.className = "daily-platform-source is-disabled";
+        unavailable.setAttribute("aria-disabled", "true");
+        unavailable.title = item && item.kind === "local" ? "本地文件数据源，无网页入口" : "暂无安全网页入口";
+        unavailable.setAttribute("aria-label", unavailable.title);
+        const label = document.createElement("span");
+        label.className = "daily-platform-source-label";
+        label.textContent = "无入口";
+        const icon = document.createElement("i");
+        icon.className = "ti ti-lock";
+        icon.setAttribute("aria-hidden", "true");
+        unavailable.append(label, icon);
+        return unavailable;
+      }
+
+      async function loadPortalUser() {
+        const response = await portalFetch("/api/auth/me", { headers: { Accept: "application/json" } });
+        if (!response.ok) {
+          if (response.status !== 401) {
+            text("freshness-status", "无法验证当前登录状态");
+            text("freshness-detail", "请刷新页面或重新登录");
+          }
+          return false;
+        }
+        const payload = await response.json();
+        state.user = payload.user || {};
+        state.permissions = new Set(normalizePermissions(payload.permissions || state.user.permissions));
+        state.csrfToken = payload.csrf_token || "";
+        configurePortalMode();
+
+        const displayName = state.user.display_name || state.user.username || "内部用户";
+        text("portal-current-user-name", displayName);
+        text("portal-current-user-role", `${currentRoleLabel()} · ${state.user.username || ""}`);
+        text("portal-current-user-avatar", displayName.trim().charAt(0) || "用");
+        byId("portal-current-user").hidden = false;
+        byId("portal-admin-entry").hidden = !hasPermission("admin.access");
+        byId("summary-download").hidden = !hasPermission("portal.download");
+        byId("boss-report-download").hidden = !hasPermission("boss_report.download");
+        mobileSummaryDownload.hidden = !hasPermission("portal.download");
+        mobileBossReportDownload.hidden = !hasPermission("boss_report.download");
+        document.querySelectorAll("[data-role-permission]").forEach((element) => {
+          element.hidden = !hasPermission(element.dataset.rolePermission);
+        });
+        text(
+          "portal-hero-intro",
+          hasPermission("admin.access")
+            ? "按业务日期查看公司经营概况、门店汇总与预测结果；管理员可在手机发起本月数据采集。"
+            : "按业务日期查看公司经营概况、门店汇总与预测结果，可直接下载已有报表。",
+        );
+        activatePortalCategory(categoryFromHash(location.hash));
+
+        if (!hasPermission("portal.view")) {
+          dateInput.disabled = true;
+          refreshButton.disabled = true;
+          text("freshness-status", "当前账号没有数据查看权限");
+          text("freshness-detail", "请联系管理员调整账号权限");
+          text("portal-live", "当前账号没有数据查看权限");
+          return false;
+        }
+        return true;
+      }
+
+      async function logoutPortalUser() {
+        const button = byId("portal-logout-button");
+        button.disabled = true;
+        try {
+          const response = await portalFetch("/api/auth/logout", { method: "POST", headers: { Accept: "application/json" } });
+          if (response.ok || response.status === 401) {
+            location.assign("/login");
+            return;
+          }
+          text("portal-live", "退出失败，请稍后重试");
+        } catch (_) {
+          text("portal-live", "退出失败，请检查服务连接");
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      function localDateString(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function formatWan(value, digits = 1) {
+        if (value == null) return "—";
+        const number = Number(value);
+        return Number.isFinite(number) ? `${(number / 10000).toFixed(digits)} 万` : "—";
+      }
+
+      function formatPercent(value) {
+        if (value == null) return "—";
+        const number = Number(value);
+        return Number.isFinite(number) ? `${number.toFixed(1)}%` : "—";
+      }
+
+      function formatNumber(value, digits = 0) {
+        if (value == null) return "—";
+        const number = Number(value);
+        if (!Number.isFinite(number)) return "—";
+        return number.toLocaleString("zh-CN", {
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits,
+        });
+      }
+
+      function formatDateTime(value) {
+        if (!value) return "—";
+        const date = new Date(String(value).replace(" ", "T"));
+        if (Number.isNaN(date.getTime())) return "—";
+        return date.toLocaleString("zh-CN", {
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        });
+      }
+
+      function collectionStateLabel(state) {
+        return ({
+          missing: "尚未采集",
+          collecting: "正在采集",
+          complete: "采集完成",
+          partial: "部分完成",
+          failed: "采集失败",
+        })[state] || "状态未知";
+      }
+
+      function text(id, value) {
+        const element = byId(id);
+        if (element) element.textContent = value == null ? "" : String(value);
+      }
+
+      function clear(element) {
+        while (element.firstChild) element.removeChild(element.firstChild);
+      }
+
+      function emptyState(message, icon) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "empty-state";
+        if (icon) {
+          const iconNode = document.createElement("i");
+          iconNode.className = `ti ti-${icon}`;
+          iconNode.setAttribute("aria-hidden", "true");
+          wrapper.appendChild(iconNode);
+        }
+        const label = document.createElement("span");
+        label.textContent = message;
+        wrapper.appendChild(label);
+        return wrapper;
+      }
+
+      async function fetchJson(url, signal) {
+        const response = await portalFetch(url, { method: "GET", signal, headers: { Accept: "application/json" } });
+        let payload;
+        try {
+          payload = await response.json();
+        } catch (_) {
+          throw new Error(`接口返回格式异常（${response.status}）`);
+        }
+        if (!response.ok || (payload && payload.error)) {
+          throw new Error((payload && payload.error) || `读取失败（${response.status}）`);
+        }
+        return payload;
+      }
+
+      function setBusy(busy) {
+        refreshButton.disabled = busy;
+        refreshButton.setAttribute("aria-busy", busy ? "true" : "false");
+        const icon = refreshButton.querySelector("i");
+        if (icon) icon.classList.toggle("ti-loader-2", busy);
+        if (icon) icon.classList.toggle("ti-refresh", !busy);
+        if (icon) icon.classList.toggle("portal-spin", busy);
+      }
+
+      function resetView(date) {
+        ["kpi-today", "kpi-month", "kpi-completion", "kpi-average"].forEach((id) => text(id, "—"));
+        ["kpi-today-note", "kpi-month-note", "kpi-completion-note", "kpi-average-note"].forEach((id) => text(id, "正在读取…"));
+        text("mobile-date-chip", date.slice(5).replace("-", "/"));
+        text("mobile-action-status", "");
+        byId("mobile-action-status")?.classList.remove("is-error");
+        text("freshness-status", `正在读取 ${date} 的数据状态…`);
+        text("freshness-detail", "完整性检查进行中");
+        text("freshness-updated", "读取中…");
+        text("freshness-coverage", "读取中…");
+        text("freshness-next-run", "读取中…");
+        const pill = byId("completeness-pill");
+        pill.className = "status-pill";
+        pill.textContent = "检查中";
+        text("summary-count", "正在读取…");
+        window.renderMemberWatch('portal-member-watch', null);
+        const summaryCutoff = byId("summary-cutoff");
+        if (summaryCutoff) {
+          clear(summaryCutoff);
+          summaryCutoff.hidden = true;
+        }
+        byId("summary-download").setAttribute("aria-disabled", "true");
+        byId("summary-download").removeAttribute("href");
+        mobileSummaryDownload.setAttribute("aria-disabled", "true");
+        mobileSummaryDownload.removeAttribute("href");
+        mobileBossReportDownload.setAttribute("aria-disabled", "true");
+        mobileBossReportDownload.removeAttribute("href");
+      }
+
+      function setMobileActionStatus(value, isError = false) {
+        const status = byId("mobile-action-status");
+        if (!status) return;
+        status.textContent = value || "";
+        status.classList.toggle("is-error", isError);
+      }
+
+      function stopCollectionPoll() {
+        if (state.collectionPollTimer) {
+          clearInterval(state.collectionPollTimer);
+          state.collectionPollTimer = null;
+        }
+      }
+
+      function scheduleCollectionPoll() {
+        stopCollectionPoll();
+        state.collectionPollTimer = setInterval(() => {
+          if (dateInput.value) loadPortal();
+        }, 8000);
+      }
+
+      function renderFreshness(date, collectionStatus, dashboardStatus, summary, failedCount) {
+        const hasSummary = Boolean(summary && Array.isArray(summary.rows) && summary.rows.length);
+        const stateValue = collectionStatus && collectionStatus.state;
+        const state = ["missing", "collecting", "complete", "partial", "failed"].includes(stateValue)
+          ? stateValue
+          : null;
+        text("mobile-date-chip", date.slice(5).replace("-", "/"));
+        if (state !== "collecting") stopCollectionPoll();
+        const pill = byId("completeness-pill");
+        const sourcesPresent = Number(collectionStatus && collectionStatus.sources_present);
+        const sourcesExpected = Number(collectionStatus && collectionStatus.sources_expected);
+        const coverage = Number.isFinite(sourcesPresent) && Number.isFinite(sourcesExpected) && sourcesExpected >= 0
+          ? `${sourcesPresent}/${sourcesExpected}`
+          : "—";
+        const runningCount = Number(collectionStatus && collectionStatus.running_count) || 0;
+        const collectionFailedCount = Number(collectionStatus && collectionStatus.failed_count) || 0;
+        const schedule = collectionStatus && collectionStatus.schedule && typeof collectionStatus.schedule === "object"
+          ? collectionStatus.schedule
+          : {};
+        const nextRange = schedule.next_start_date && schedule.next_target_date
+          ? `${schedule.next_start_date} 至 ${schedule.next_target_date}`
+          : (schedule.next_target_date || "");
+        const nextRun = schedule.enabled && schedule.next_run_at
+          ? `${formatDateTime(schedule.next_run_at)}${schedule.next_label ? ` · ${String(schedule.next_label)}` : ""}${nextRange ? ` · ${nextRange}` : ""}`
+          : (schedule.enabled ? "等待计划" : "未启用");
+        const latestUpdated = formatDateTime(collectionStatus && collectionStatus.data_updated_at);
+        const oldestUpdated = formatDateTime(collectionStatus && collectionStatus.oldest_data_updated_at);
+        const updatedText = latestUpdated !== "—" && oldestUpdated !== "—" && latestUpdated !== oldestUpdated
+          ? `${latestUpdated}（最早 ${oldestUpdated}）`
+          : latestUpdated;
+
+        text("freshness-updated", updatedText);
+        text("freshness-coverage", coverage);
+        text("freshness-next-run", nextRun);
+
+        if (!collectionStatus && failedCount >= 3 && !hasSummary) {
+          text("freshness-status", `无法读取 ${date} 的数据`);
+          text("freshness-detail", "采集状态暂不可用，请稍后重新读取");
+          pill.className = "status-pill is-error";
+          pill.textContent = "读取失败";
+          setMobileActionStatus("当前日期状态暂不可用，请稍后重新读取。", true);
+          return;
+        }
+
+        if (!collectionStatus) {
+          text("freshness-status", hasSummary ? `${date} 有可查看数据` : `无法确认 ${date} 的采集状态`);
+          text("freshness-detail", "真实采集时间和自动更新计划暂不可用，请稍后重新读取");
+          pill.className = "status-pill is-warning";
+          pill.textContent = "状态暂不可用";
+          setMobileActionStatus("已有数据仍可查看，状态信息暂不可用。", false);
+          return;
+        }
+
+        if (state === "collecting") {
+          text("freshness-status", `正在自动采集 ${date} 的数据`);
+          text("freshness-detail", `已有 ${coverage} 个数据源入库${runningCount ? ` · ${runningCount} 个正在运行` : ""}，完成后页面会自动显示最新结果`);
+          pill.className = "status-pill is-warning";
+          pill.textContent = "采集中";
+          setMobileActionStatus("数据正在获取，完成后会自动更新此页面。", false);
+          return;
+        }
+
+        if (state === "failed") {
+          text("freshness-status", `${date} 的自动采集未完成`);
+          text("freshness-detail", hasSummary ? "当前继续展示已成功入库的数据，请联系管理员在后台补采" : "暂无可展示数据，请联系管理员在后台补采");
+          pill.className = "status-pill is-error";
+          pill.textContent = "采集失败";
+          setMobileActionStatus("获取未完成，请检查后台平台状态后重试。", true);
+          return;
+        }
+
+        if (state === "missing" || (!hasSummary && state !== "partial")) {
+          const isNextScheduledTarget = schedule.enabled && schedule.next_target_date === date;
+          text("freshness-status", `${date} 尚无已采集数据`);
+          text("freshness-detail", isNextScheduledTarget ? "该日期在下一次自动更新计划中，无需手动操作" : "该日期不在下一次自动更新计划中，请联系管理员在后台补采");
+          pill.className = "status-pill is-warning";
+          pill.textContent = collectionStateLabel(state || "missing");
+          setMobileActionStatus(
+            hasPermission("admin.access")
+              ? "还没有这一天的数据，可点击“获取本月数据”从 1 号补采。"
+              : "这一天还没有已采集数据。",
+            false,
+          );
+          return;
+        }
+
+        const missingDates = dashboardStatus && Array.isArray(dashboardStatus.dates_missing)
+          ? dashboardStatus.dates_missing.map((item) => item.date).filter(Boolean)
+          : [];
+        const lastAttempt = formatDateTime(collectionStatus && collectionStatus.last_attempt_at);
+        const issueCount = (dashboardStatus && dashboardStatus.data_issues || []).length;
+        const detail = `${coverage} 个数据源${collectionFailedCount ? ` · ${collectionFailedCount} 个失败 · 请联系管理员补采` : ""} · 上次尝试 ${lastAttempt}${missingDates.length ? ` · 大屏依赖日期缺少 ${missingDates.join("、")}` : ""}${issueCount ? ` · ${issueCount} 项快照待核对，统计为已入库金额` : ""}`;
+
+        text("freshness-status", `${date} 数据${collectionStateLabel(state || "complete")}`);
+        text("freshness-detail", detail);
+        if (state === "complete" && !missingDates.length && !issueCount) {
+          pill.className = "status-pill is-good";
+          pill.textContent = "未发现已知缺口";
+        } else {
+          pill.className = "status-pill is-warning";
+          pill.textContent = state === "partial" ? "部分完成" : "可查看 · 有缺项";
+        }
+        setMobileActionStatus(
+          state === "complete" && !missingDates.length && !issueCount
+            ? "数据已更新，可以查看概览或下载报表。"
+            : "数据可以查看，但仍有部分来源或快照需要核对。",
+          false,
+        );
+      }
+
+      function renderDashboard(data) {
+        const hkCard = byId("ranking-hk-card");
+        const rankingColumns = byId("overview-ranking-columns");
+        if (!data || !data.ready) {
+          text("kpi-today-note", "大屏依赖日期数据不完整");
+          text("kpi-month-note", "大屏依赖日期数据不完整");
+          text("kpi-completion-note", "大屏依赖日期数据不完整");
+          text("kpi-average-note", "大屏依赖日期数据不完整");
+          renderTrend([]);
+          renderRegions({});
+          renderRanking("ranking-cn", []);
+          renderRanking("ranking-hk", []);
+          if (hkCard) {
+            hkCard.hidden = true;
+            hkCard.setAttribute("aria-hidden", "true");
+          }
+          if (rankingColumns) rankingColumns.classList.add("is-single");
+          return;
+        }
+
+        text("kpi-today", `¥${formatWan(data.today_total)}`);
+        text("kpi-today-note", data.day_change == null ? "前日数据不足，暂不计算日环比" : `较前日 ${Number(data.day_change) >= 0 ? "+" : ""}${formatWan(data.day_change)}`);
+        text("kpi-month", `¥${formatWan(data.curr_month_total)}`);
+        text("kpi-month-note", `全部历史门店 · 已入库统计${(data.data_issues || []).length ? " · 待核对" : ""}`);
+        text("kpi-completion", formatPercent(data.completion_rate));
+        text("kpi-completion-note", data.month_target == null ? `${data.target_month} 目标未配置` : `${data.target_store_count} 家有目标门店 · 目标 ¥${formatNumber(data.month_target, 2)} 万`);
+        text("kpi-average", `¥${formatWan(data.avg_daily)}`);
+        text("kpi-average-note", `已过 ${formatNumber(data.days_passed)} 个自然日`);
+
+        renderTrend(Array.isArray(data.daily_trend) ? data.daily_trend : []);
+        renderRegions(data.regions || {});
+        const hongkongRanking = Array.isArray(data.top_hk) ? data.top_hk : [];
+        renderRanking("ranking-cn", Array.isArray(data.top_cn) ? data.top_cn : []);
+        renderRanking("ranking-hk", hongkongRanking);
+        if (hkCard) {
+          hkCard.hidden = !hongkongRanking.length;
+          hkCard.setAttribute("aria-hidden", String(!hongkongRanking.length));
+        }
+        if (rankingColumns) rankingColumns.classList.toggle("is-single", !hongkongRanking.length);
+      }
+
+      function svgNode(name, attributes = {}) {
+        const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+        Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      }
+
+      function renderTrend(items) {
+        const container = byId("trend-chart");
+        clear(container);
+        const points = items;
+        const valid = (item) => Number.isFinite(item.daily);
+        if (!points.some(valid)) {
+          container.appendChild(emptyState("暂无可计算的单日收入（当日或前一日累计缺失）", "chart-line"));
+          return;
+        }
+
+        const width = 760;
+        const height = 260;
+        const padding = { top: 22, right: 18, bottom: 40, left: 52 };
+        const values = points.map((item) => valid(item) ? item.daily / 10000 : null);
+        const available = values.filter((value) => value !== null);
+        const min = Math.min(0, ...available);
+        const max = Math.max(1, ...available);
+        const span = Math.max(max - min, 1);
+        const x = (index) => padding.left + index * (width - padding.left - padding.right) / Math.max(points.length - 1, 1);
+        const y = (value) => height - padding.bottom - (value - min) / span * (height - padding.top - padding.bottom);
+        const svg = svgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "本月每日收入趋势图" });
+
+        for (let index = 0; index <= 4; index += 1) {
+          const value = min + span * (4 - index) / 4;
+          const lineY = padding.top + index * (height - padding.top - padding.bottom) / 4;
+          svg.appendChild(svgNode("line", { x1: padding.left, y1: lineY, x2: width - padding.right, y2: lineY, stroke: "#e6edf5", "stroke-width": 1 }));
+          const label = svgNode("text", { x: padding.left - 8, y: lineY + 4, fill: "#64748b", "font-size": 10, "text-anchor": "end" });
+          label.textContent = value.toFixed(1);
+          svg.appendChild(label);
+        }
+
+        const segments = [];
+        let segment = [];
+        points.forEach((item, index) => {
+          if (valid(item)) {
+            segment.push(index);
+          } else if (segment.length) {
+            segments.push(segment);
+            segment = [];
+          }
+        });
+        if (segment.length) segments.push(segment);
+        segments.forEach((indices) => {
+          svg.appendChild(svgNode("path", {
+            d: `M ${x(indices[0])} ${height - padding.bottom} L ${indices.map((index) => `${x(index)} ${y(values[index])}`).join(" L ")} L ${x(indices[indices.length - 1])} ${height - padding.bottom} Z`,
+            fill: "rgba(37, 99, 235, .08)",
+          }));
+          svg.appendChild(svgNode("polyline", {
+            points: indices.map((index) => `${x(index)},${y(values[index])}`).join(" "),
+            fill: "none",
+            stroke: "#2563eb",
+            "stroke-width": 2.5,
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+          }));
+        });
+
+        points.forEach((item, index) => {
+          if (valid(item)) {
+            svg.appendChild(svgNode("circle", { cx: x(index), cy: y(values[index]), r: 3, fill: "#fff", stroke: "#2563eb", "stroke-width": 2 }));
+          }
+          if (index === 0 || index === points.length - 1 || index % Math.max(Math.ceil(points.length / 6), 1) === 0) {
+            const label = svgNode("text", { x: x(index), y: height - 14, fill: "#64748b", "font-size": 10, "text-anchor": "middle" });
+            label.textContent = String(item.date || "").slice(5);
+            svg.appendChild(label);
+          }
+        });
+
+        container.appendChild(svg);
+        const missing = points.filter((item) => !valid(item));
+        if (missing.length) {
+          const note = document.createElement("p");
+          note.textContent = `${missing.map((item) => String(item.date).slice(5)).join("、")}：当日或前一日累计缺失，单日收入留空。`;
+          container.appendChild(note);
+        }
+      }
+
+      function renderRegions(regions) {
+        const container = byId("region-list");
+        clear(container);
+        const items = Object.entries(regions)
+          .map(([name, value]) => [name, Number(value)])
+          .filter((item) => Number.isFinite(item[1]))
+          .sort((a, b) => b[1] - a[1]);
+        if (!items.length) {
+          container.appendChild(emptyState("暂无区域收入数据", "map-off"));
+          return;
+        }
+        const max = Math.max(...items.map((item) => item[1]), 1);
+        items.forEach(([name, value]) => {
+          const row = document.createElement("div");
+          row.className = "region-row";
+          const nameNode = document.createElement("span");
+          nameNode.className = "region-name";
+          nameNode.textContent = name;
+          const track = document.createElement("span");
+          track.className = "region-track";
+          const bar = document.createElement("span");
+          bar.className = "region-bar";
+          bar.style.display = "block";
+          bar.style.width = `${Math.max(value / max * 100, 2)}%`;
+          track.appendChild(bar);
+          const amount = document.createElement("span");
+          amount.className = "region-value";
+          amount.textContent = formatWan(value);
+          row.append(nameNode, track, amount);
+          container.appendChild(row);
+        });
+      }
+
+      function renderRanking(containerId, items) {
+        const container = byId(containerId);
+        clear(container);
+        if (!items.length) {
+          container.appendChild(emptyState("暂无门店排行", "building-store"));
+          return;
+        }
+        items.slice(0, 3).forEach((item, index) => {
+          const row = document.createElement("div");
+          row.className = "ranking-row";
+          const rank = document.createElement("span");
+          rank.className = "ranking-index";
+          rank.textContent = String(index + 1);
+          const name = document.createElement("span");
+          name.className = "ranking-name";
+          name.textContent = Array.isArray(item) ? String(item[0] || "未命名门店") : String(item.venue || "未命名门店");
+          const value = document.createElement("span");
+          value.className = "ranking-value";
+          value.textContent = formatWan(Array.isArray(item) ? item[1] : item.value);
+          row.append(rank, name, value);
+          container.appendChild(row);
+        });
+      }
+
+      function renderSummaryCutoff(meta) {
+        const container = byId("summary-cutoff");
+        if (!container) return;
+        clear(container);
+        const platforms = Array.isArray(meta && meta.platforms) ? meta.platforms : [];
+        if (!platforms.length) {
+          container.hidden = true;
+          return;
+        }
+        const targetDate = String(meta.target_date || dateInput.value || "");
+        const current = Number(meta.current_platform_count || 0);
+        const expected = Number(meta.expected_platform_count || platforms.length);
+        const title = document.createElement("strong");
+        title.textContent = `数据截止：${targetDate || "—"}`;
+        const detail = document.createElement("span");
+        detail.className = "summary-cutoff-detail";
+        detail.textContent = `已覆盖 ${current}/${expected} 个来源 · ${Number(meta.pair_count || 0).toLocaleString("zh-CN")} 个门店×平台快照`;
+        container.append(title, detail);
+
+        const delayed = platforms.filter((item) => item.status && item.status !== "current");
+        if (delayed.length) {
+          const warning = document.createElement("span");
+          warning.className = "summary-cutoff-warning";
+          warning.textContent = delayed.map((item) => {
+            const name = String(item.name || item.platform || "未知平台");
+            if (item.status === "disabled") return `${name}已停采（最近${item.latest_date || "无数据"}）`;
+            if (item.status === "no_visible_data") return `${name}当前范围无数据`;
+            if (item.status === "missing") return `${name}缺少数据`;
+            if (item.status === "task_failed") return `${name}任务失败（最近${item.latest_date || "无数据"}）`;
+            return `${name}待核对（截至${item.latest_date || "无数据"}）`;
+          }).join("；");
+          container.appendChild(warning);
+        }
+        container.hidden = false;
+      }
+
+      function renderSummary(summary) {
+        state.summary = summary && Array.isArray(summary.columns) && Array.isArray(summary.rows)
+          ? summary
+          : { columns: [], rows: [] };
+        renderSummaryCutoff(state.summary.meta);
+        renderSummaryRows();
+      }
+
+      function clearSummaryHighlight(table) {
+        table.querySelectorAll(".hl-row, .hl-col, .hl-cell").forEach((cell) => {
+          cell.classList.remove("hl-row", "hl-col", "hl-cell");
+        });
+      }
+
+      function applySummaryHighlight(table, rowIndex, colIndex) {
+        clearSummaryHighlight(table);
+        const body = table.tBodies[0];
+        if (!body || colIndex < 0) return;
+        table.querySelectorAll("thead tr").forEach((row) => row.cells[colIndex]?.classList.add("hl-col"));
+        Array.from(body.rows).forEach((row) => row.cells[colIndex]?.classList.add("hl-col"));
+        if (rowIndex < 0 || !body.rows[rowIndex]) return;
+        const cell = body.rows[rowIndex].cells[colIndex];
+        if (!cell) return;
+        cell.classList.remove("hl-col");
+        cell.classList.add("hl-cell");
+        Array.from(cell.parentElement.cells).forEach((item) => {
+          if (item !== cell) item.classList.add("hl-row");
+        });
+      }
+
+      function initSummaryHighlight() {
+        const table = byId("portal-summary-table");
+        if (!table || table.dataset.highlightReady === "true") return;
+        table.dataset.highlightReady = "true";
+        table.addEventListener("click", (event) => {
+          const cell = event.target.closest("td, th");
+          if (!cell || !table.contains(cell)) return;
+          const row = cell.closest("tr");
+          const body = table.tBodies[0];
+          const rowIndex = cell.tagName === "TD" && body && row ? Array.from(body.rows).indexOf(row) : -1;
+          if (cell.classList.contains("hl-cell")) {
+            clearSummaryHighlight(table);
+            return;
+          }
+          applySummaryHighlight(table, rowIndex, cell.cellIndex);
+        });
+      }
+
+      function renderSummaryRows() {
+        const table = byId("portal-summary-table");
+        const head = table.tHead;
+        const body = table.tBodies[0];
+        const mobileList = byId("summary-mobile-list");
+        const empty = byId("summary-empty");
+        clear(head);
+        clear(body);
+        clear(mobileList);
+
+        const columns = state.summary.columns || [];
+        const query = summarySearch.value.trim().toLocaleLowerCase("zh-CN");
+        const rows = (state.summary.rows || []).filter((row) => {
+          if (!query) return true;
+          return row.some((cell) => String(cell == null ? "" : cell).toLocaleLowerCase("zh-CN").includes(query));
+        });
+
+        if (!columns.length || !state.summary.rows.length) {
+          table.hidden = true;
+          mobileList.hidden = true;
+          empty.hidden = false;
+          text("summary-count", "该日期暂无汇总数据");
+          empty.querySelector("span").textContent = "该日期暂无汇总数据";
+          return;
+        }
+
+        table.hidden = false;
+        mobileList.hidden = false;
+        empty.hidden = true;
+        const headerRow = document.createElement("tr");
+        columns.forEach((column, index) => {
+          const cell = document.createElement("th");
+          cell.scope = "col";
+          cell.textContent = String(column == null ? "" : column);
+          if (String(column) === "序号") cell.classList.add("is-index");
+          const numericColumn = state.summary.rows.some((row) => typeof row[index] === "number");
+          if (numericColumn) cell.classList.add("is-number");
+          headerRow.appendChild(cell);
+        });
+        head.appendChild(headerRow);
+
+        rows.forEach((row) => {
+          const tableRow = document.createElement("tr");
+          if (row.some((cell) => cell === "合计")) tableRow.className = "row-total";
+          columns.forEach((_, index) => {
+            const value = row[index];
+            const cell = document.createElement("td");
+            if (String(columns[index]) === "序号") cell.classList.add("is-index");
+            if (typeof value === "number" && Number.isFinite(value)) {
+              cell.className = "is-number";
+              cell.textContent = value.toLocaleString("zh-CN", { maximumFractionDigits: 2 });
+            } else {
+              cell.textContent = value == null ? "" : String(value);
+            }
+            tableRow.appendChild(cell);
+          });
+          body.appendChild(tableRow);
+
+          const mobileCard = document.createElement("article");
+          mobileCard.className = `summary-mobile-card${row.some((cell) => cell === "合计") ? " is-total" : ""}`;
+          const cardHead = document.createElement("div");
+          cardHead.className = "summary-mobile-card-head";
+          const title = document.createElement("strong");
+          title.className = "summary-mobile-card-title";
+          const titleIndex = columns.findIndex((column) => String(column) !== "序号");
+          const indexIndex = columns.findIndex((column) => String(column) === "序号");
+          const rawTitle = row[titleIndex >= 0 ? titleIndex : 0];
+          title.textContent = rawTitle == null || rawTitle === "" ? "汇总数据" : String(rawTitle);
+          cardHead.appendChild(title);
+          if (indexIndex >= 0 && row[indexIndex] != null && row[indexIndex] !== "") {
+            const index = document.createElement("span");
+            index.className = "summary-mobile-card-index";
+            index.textContent = `序号 ${row[indexIndex]}`;
+            cardHead.appendChild(index);
+          }
+          mobileCard.appendChild(cardHead);
+
+          const fields = document.createElement("dl");
+          fields.className = "summary-mobile-fields";
+          columns.forEach((column, index) => {
+            if (index === titleIndex || index === indexIndex) return;
+            const field = document.createElement("div");
+            field.className = "summary-mobile-field";
+            const label = document.createElement("dt");
+            label.textContent = String(column == null ? "" : column);
+            const valueNode = document.createElement("dd");
+            const value = row[index];
+            if (typeof value === "number" && Number.isFinite(value)) {
+              valueNode.className = "is-number";
+              valueNode.textContent = value.toLocaleString("zh-CN", { maximumFractionDigits: 2 });
+            } else {
+              valueNode.textContent = value == null ? "—" : String(value);
+            }
+            field.append(label, valueNode);
+            fields.appendChild(field);
+          });
+          mobileCard.appendChild(fields);
+          mobileList.appendChild(mobileCard);
+        });
+
+        text("summary-count", query ? `筛选后 ${rows.length} 行 · 共 ${state.summary.rows.length} 行` : `共 ${rows.length} 行`);
+        if (!rows.length) {
+          const row = document.createElement("tr");
+          const cell = document.createElement("td");
+          cell.colSpan = columns.length;
+          cell.textContent = "没有符合筛选条件的数据";
+          cell.style.textAlign = "center";
+          cell.style.padding = "28px";
+          cell.style.color = "var(--text-tertiary)";
+          row.appendChild(cell);
+          body.appendChild(row);
+          const mobileEmpty = document.createElement("div");
+          mobileEmpty.className = "summary-mobile-card";
+          mobileEmpty.textContent = "没有符合筛选条件的数据";
+          mobileList.appendChild(mobileEmpty);
+        }
+
+        initSummaryHighlight();
+      }
+
+      function dailyMoney(value) {
+        const number = dailyNumber(value);
+        return number == null ? "—" : `¥${number.toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      }
+
+      function dailyNumber(value) {
+        if (value == null || value === "") return null;
+        const number = Number(value);
+        return Number.isFinite(number) ? number : null;
+      }
+
+      function dailyRows(data) {
+        const rows = Array.isArray(data && data.venues) ? data.venues.slice() : [];
+        if (!rows.length && data && data.selected_venue) {
+          rows.push({
+            venue: data.selected_venue,
+            total_income: data.known_income,
+            platforms: Array.isArray(data.platforms) ? data.platforms : [],
+          });
+        }
+        return rows;
+      }
+
+      function dailyAnalytics(data) {
+        const rows = dailyRows(data).map((item) => ({ ...item, amount: dailyNumber(item.total_income) }));
+        rows.sort((left, right) => (right.amount == null ? -Infinity : right.amount) - (left.amount == null ? -Infinity : left.amount));
+        const positiveRows = rows.filter((item) => item.amount != null && item.amount > 0.01);
+        const numericRows = rows.filter((item) => item.amount != null);
+        const knownIncome = dailyNumber(data && data.known_income);
+        const rowIncome = numericRows.reduce((sum, item) => sum + item.amount, 0);
+        return {
+          rows,
+          positiveRows,
+          knownIncome: knownIncome == null ? (numericRows.length ? rowIncome : null) : knownIncome,
+        };
+      }
+
+      function dailyPercent(value, total) {
+        return value > 0 && total > 0 ? `${(value / total * 100).toFixed(1)}%` : "—";
+      }
+
+      function dailyBarWidth(value, maximum) {
+        if (!Number.isFinite(value) || Math.abs(value) < 0.01 || maximum <= 0) return 0;
+        return Math.max(2, Math.min(100, Math.abs(value) / maximum * 100));
+      }
+
+      const DAILY_SEGMENT_COLORS = ["#2563eb", "#4f46e5", "#0891b2", "#7c3aed", "#0e7490", "#3b82f6", "#6366f1", "#0284c7", "#8b5cf6", "#475569"];
+      const DAILY_PLATFORM_COLORS = { meituan: "#e11d48", yuntai: "#7c3aed", leyaoyao: "#059669", duojinbao: "#d97706", jingjian: "#0284c7", starthing: "#db2777", new_system: "#2563eb", huilian: "#0f766e", kpay: "#ea580c", octopus: "#475569", payment: "#64748b", douyin: "#111827", coin_exchange: "#65a30d" };
+
+      function dailyElement(tag, className, value) {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (value != null) element.textContent = String(value);
+        return element;
+      }
+
+      function dailyStorePlatforms(store) {
+        return (store && Array.isArray(store.platforms) ? store.platforms : [])
+          .map((item) => ({ ...item, amount: dailyNumber(item.income) }))
+          .filter((item) => item.amount != null && Math.abs(item.amount) > 0.01)
+          .sort((left, right) => Math.abs(right.amount) - Math.abs(left.amount));
+      }
+
+      function dailyPlatformColor(item) {
+        const key = String(item && item.platform || "").trim();
+        if (DAILY_PLATFORM_COLORS[key]) return DAILY_PLATFORM_COLORS[key];
+        const seed = String(item && item.name || key || "unknown");
+        let hash = 0;
+        for (let index = 0; index < seed.length; index += 1) hash = (hash * 31 + seed.charCodeAt(index)) >>> 0;
+        return DAILY_SEGMENT_COLORS[hash % DAILY_SEGMENT_COLORS.length];
+      }
+
+      function dailyPlatformLabel(item) {
+        return item && item.name || item && item.platform || "未命名平台";
+      }
+
+      function dailyStoreKey(store) {
+        return String(store && store.venue || "").trim();
+      }
+
+      function dailyPlatformBar(store, maximum) {
+        const platforms = dailyStorePlatforms(store);
+        const total = platforms.reduce((sum, item) => sum + Math.abs(item.amount), 0);
+        const summary = platforms.map((item) => `${dailyPlatformLabel(item)} ${dailyMoney(item.amount)}`).join("；");
+        const rail = dailyElement("span", "daily-store-rail");
+        const bar = dailyElement("span", "daily-store-bar");
+        bar.style.width = `${dailyBarWidth(store.amount, maximum)}%`;
+        if (!platforms.length) {
+          if (store.amount < -0.01) bar.classList.add("is-negative");
+          rail.appendChild(bar);
+          return rail;
+        }
+        bar.setAttribute("role", "img");
+        bar.setAttribute("aria-label", summary);
+        platforms.forEach((item) => {
+          const segment = dailyElement("span", `daily-store-segment${item.amount < -0.01 ? " is-negative" : ""}`);
+          const label = `${dailyPlatformLabel(item)}：${dailyMoney(item.amount)}`;
+          segment.title = label;
+          segment.setAttribute("aria-label", label);
+          segment.style.width = `${total ? Math.abs(item.amount) / total * 100 : 0}%`;
+          segment.style.background = dailyPlatformColor(item);
+          bar.appendChild(segment);
+        });
+        rail.appendChild(bar);
+        return rail;
+      }
+
+      function dailyPlatformLegend(rows) {
+        const seen = new Set();
+        const items = [];
+        rows.forEach((store) => dailyStorePlatforms(store).forEach((item) => {
+          const key = String(item.platform || item.name || "").trim();
+          if (key && !seen.has(key)) {
+            seen.add(key);
+            items.push(item);
+          }
+        }));
+        const legend = byId("daily-platform-legend");
+        if (!legend) return;
+        legend.replaceChildren();
+        if (!items.length) return;
+        legend.appendChild(dailyElement("span", "daily-platform-legend-label", "颜色代表平台"));
+        items.forEach((item) => {
+          const entry = dailyElement("span", "daily-platform-legend-item");
+          const dot = dailyElement("i");
+          dot.style.background = dailyPlatformColor(item);
+          entry.append(dot, dailyElement("span", "", dailyPlatformLabel(item)));
+          legend.appendChild(entry);
+        });
+      }
+
+      function dailyStoreRegion(store) {
+        return String(store && store.region || "").trim() === "香港" || String(store && store.venue || "").includes("香港") ? "hongkong" : "mainland";
+      }
+
+      function dailyRegionMeta(rows) {
+        const numeric = rows.filter((item) => item.amount != null);
+        return rows.length ? `${rows.length} 家 · 合计 ${numeric.length ? dailyMoney(numeric.reduce((sum, item) => sum + item.amount, 0)) : "—"}` : "暂无门店";
+      }
+
+      function renderDailyRegion(container, rows, regionLabel) {
+        container.replaceChildren();
+        if (!rows.length) {
+          container.appendChild(dailyElement("div", "daily-empty-inline", `暂无${regionLabel}门店数据`));
+          return;
+        }
+        const positiveTotal = rows.reduce((sum, item) => sum + Math.max(0, item.amount || 0), 0);
+        const maximum = Math.max(1, ...rows.map((item) => Math.abs(item.amount || 0)));
+        rows.forEach((item, index) => {
+          const button = dailyElement("button", "daily-store-row");
+          button.type = "button";
+          button.dataset.venue = item.venue || "";
+          button.setAttribute("aria-pressed", String(state.dailySelectedVenue === dailyStoreKey(item)));
+          if (state.dailySelectedVenue === dailyStoreKey(item)) button.classList.add("is-selected");
+          button.setAttribute("aria-label", `查看 ${item.venue || "未命名门店"} 的平台收入构成`);
+          const rank = dailyElement("span", `daily-rank${index < 3 ? " is-top" : ""}`, index + 1);
+          const copy = dailyElement("span", "daily-store-copy");
+          const name = dailyElement("strong", "", item.venue || "未命名门店");
+          name.title = name.textContent;
+          copy.append(name, dailyElement("small", "", `${dailyStorePlatforms(item).length} 个平台有金额 · 色块悬停看明细 · 点击查看构成`));
+          const rail = dailyPlatformBar(item, maximum);
+          const amount = dailyElement("span", `daily-store-amount${item.amount < -0.01 ? " is-negative" : ""}`, dailyMoney(item.amount));
+          amount.appendChild(dailyElement("small", "", `区域占比 ${dailyPercent(item.amount, positiveTotal)}`));
+          const arrow = dailyElement("i", "ti ti-chevron-right daily-store-arrow");
+          arrow.setAttribute("aria-hidden", "true");
+          button.append(rank, copy, rail, amount, arrow);
+          button.addEventListener("click", () => openDailyStoreDetail(item));
+          container.appendChild(button);
+        });
+      }
+
+      function dailyDonutGradient(platforms) {
+        const positive = platforms.map((item) => ({ ...item, color: dailyPlatformColor(item) })).filter((item) => item.amount > 0.01);
+        const total = positive.reduce((sum, item) => sum + item.amount, 0);
+        if (!total) return "#e2e8f0";
+        let cursor = 0;
+        return `conic-gradient(${positive.map((item) => {
+          const start = cursor;
+          cursor += item.amount / total * 100;
+          return `${item.color} ${start.toFixed(2)}% ${cursor.toFixed(2)}%`;
+        }).join(",")})`;
+      }
+
+      function renderDailyStoreDetail(store) {
+        const body = byId("daily-store-detail-body");
+        if (!store || !body) return;
+        const platforms = dailyStorePlatforms(store);
+        const positiveTotal = platforms.reduce((sum, item) => sum + Math.max(0, item.amount), 0);
+        const maximum = Math.max(1, ...platforms.map((item) => Math.abs(item.amount)));
+        body.replaceChildren();
+        text("daily-store-detail-title", store.venue || "未命名门店");
+        text("daily-store-detail-meta", `${state.dailyDate || "所选日期"} · ${platforms.length} 个平台有金额`);
+        const chart = dailyElement("section", "daily-donut-panel");
+        const donut = dailyElement("div", "daily-donut");
+        donut.setAttribute("role", "img");
+        donut.setAttribute("aria-label", "平台正向收入占比环形图");
+        donut.style.background = dailyDonutGradient(platforms);
+        const center = dailyElement("div", "daily-donut-center", dailyMoney(store.amount));
+        center.appendChild(dailyElement("small", "", "门店单日收入"));
+        donut.appendChild(center);
+        chart.append(donut, dailyElement("p", "daily-donut-note", "环形图按正向平台收入计算占比；负数调整项在右侧单独标识。"));
+        const detail = dailyElement("section", "daily-platform-detail");
+        detail.appendChild(dailyElement("h3", "daily-platform-detail-title", "平台明细 · 按金额绝对值排序"));
+        const list = dailyElement("div", "daily-platform-detail-list");
+        if (!platforms.length) {
+          list.appendChild(dailyElement("div", "daily-empty-inline", "该门店暂无有金额的平台收入"));
+        } else {
+          platforms.forEach((item, index) => {
+            const negative = item.amount < -0.01;
+            const color = dailyPlatformColor(item);
+            const row = dailyElement("div", "daily-platform-row");
+            const dot = dailyElement("span", "daily-platform-dot");
+            dot.style.background = color;
+            const name = dailyElement("span", "daily-platform-name", item.name || item.platform || "未命名平台");
+            name.title = name.textContent;
+            const track = dailyElement("span", "daily-platform-track");
+            const bar = dailyElement("span", `daily-platform-bar${negative ? " is-negative" : ""}`);
+            bar.style.width = `${dailyBarWidth(item.amount, maximum)}%`;
+            bar.style.background = color;
+            track.appendChild(bar);
+            const value = dailyElement("span", `daily-platform-value${negative ? " is-negative" : ""}`, dailyMoney(item.amount));
+            const share = dailyElement("span", "daily-platform-share", item.amount > 0.01 && positiveTotal > 0 ? `${(item.amount / positiveTotal * 100).toFixed(1)}%` : "调整项");
+            row.append(dot, name, track, value, share, platformLinkInlineElement(item.platform));
+            list.appendChild(row);
+          });
+        }
+        detail.appendChild(list);
+        body.append(chart, detail);
+      }
+
+      function openDailyStoreDetail(store) {
+        if (!store) return;
+        state.dailySelectedVenue = dailyStoreKey(store);
+        document.querySelectorAll(".daily-store-row").forEach((row) => {
+          const selected = row.dataset.venue === state.dailySelectedVenue;
+          row.classList.toggle("is-selected", selected);
+          row.setAttribute("aria-pressed", String(selected));
+        });
+        renderDailyStoreDetail(store);
+      }
+
+      function closeDailyStoreDetail() {
+        const dialog = byId("daily-store-dialog");
+        if (dialog && dialog.open) dialog.close();
+      }
+
+      function renderDailyOperations(data) {
+        const status = byId("daily-status");
+        if (!status) return;
+        const labels = { complete: "数据完整", partial: "部分数据", missing: "缺少累计快照", unverified: "历史口径未验证" };
+        const stateName = data && data.status || "error";
+        const label = labels[stateName] || "无法读取";
+        const missingDates = (data && data.missing_required_dates || []).map((item) => item.date).join("、");
+        const missingSources = (data && data.missing_sources || []).slice(0, 5).map((item) => `${item.date} ${item.name || item.platform}`).join("、");
+        const optionalSources = (data && data.optional_source_warnings || []).slice(0, 3).map((item) => `${item.date} ${item.name || item.platform}`).join("、");
+        const detail = [
+          data && data.formula === "month_start_baseline" ? "月初首日直接使用累计值" : "截止日累计 − 前一自然日累计",
+          data && (data.status === "unverified" || (data.warnings || []).some((item) => item.reason === "range_unknown" || item.reason === "range_mismatch")) ? "请按月初至截止日重新采集" : "",
+          missingDates ? `缺少：${missingDates}` : "",
+          missingSources ? `来源异常：${missingSources}` : "",
+          optionalSources ? `可选来源告警：${optionalSources}` : "",
+        ].filter(Boolean).join("；");
+        status.className = `daily-status-strip is-${stateName}`;
+        status.replaceChildren();
+        const icon = document.createElement("span");
+        icon.className = "daily-status-icon";
+        const iconNode = document.createElement("i");
+        iconNode.className = `ti ti-${stateName === "complete" ? "circle-check" : stateName === "missing" ? "alert-circle" : "alert-triangle"}`;
+        iconNode.setAttribute("aria-hidden", "true");
+        icon.appendChild(iconNode);
+        const copy = document.createElement("div");
+        copy.className = "daily-status-copy";
+        const title = document.createElement("div");
+        title.className = "daily-status-title";
+        title.textContent = data && data.selected_venue ? `${label} · ${data.selected_venue}` : label;
+        const note = document.createElement("div");
+        note.className = "daily-status-note";
+        note.textContent = detail || "当前日期没有额外提示";
+        copy.append(title, note);
+        const badge = document.createElement("span");
+        badge.className = "daily-status-badge";
+        badge.textContent = label;
+        status.append(icon, copy, badge);
+
+        const options = data && data.available_venues || [];
+        const previous = dailyVenueInput.value;
+        dailyVenueInput.replaceChildren(new Option("全部门店", ""));
+        options.forEach((venue) => dailyVenueInput.add(new Option(venue, venue)));
+        dailyVenueInput.value = options.includes(previous) ? previous : (data.selected_venue || "");
+        const analytics = dailyAnalytics(data);
+        const official = data && data.status === "complete" && dailyNumber(data.total_income) != null;
+        const headline = official ? dailyNumber(data.total_income) : analytics.knownIncome;
+        const topStore = analytics.positiveRows[0];
+        text("daily-total-label", data && data.selected_venue ? "门店单日收入" : (official ? "单日总收入" : "当前已知收入"));
+        text("daily-total", dailyMoney(headline));
+        text("daily-known", official ? `${data.date} · 已按所选日期营业门店汇总` : (headline == null ? "暂无可计算收入" : "正式合计待数据完整，当前金额仅供查看"));
+        text("daily-income-stores", analytics.rows.length ? `${analytics.positiveRows.length}/${analytics.rows.length}` : "—");
+        text("daily-income-stores-note", analytics.rows.length ? `${analytics.rows.length - analytics.positiveRows.length} 家暂无正向收入` : "暂无有效门店");
+        text("daily-average", analytics.rows.length && analytics.knownIncome != null ? dailyMoney(analytics.knownIncome / analytics.rows.length) : "—");
+        text("daily-average-note", analytics.rows.length ? `按 ${analytics.rows.length} 家有效门店计算` : "等待门店数据");
+        text("daily-top-label", "最高门店");
+        text("daily-top-store", topStore && topStore.venue || "暂无收入");
+        text("daily-top-store-note", topStore ? dailyMoney(topStore.amount) : "没有正向门店收入");
+        state.dailyRows = analytics.rows;
+        state.dailyDate = data && data.date || dateInput.value;
+        const preferred = String(data && data.selected_venue || "").trim();
+        const selectedStore = analytics.rows.find((item) => dailyStoreKey(item) === preferred)
+          || analytics.rows.find((item) => dailyStoreKey(item) === state.dailySelectedVenue)
+          || topStore
+          || analytics.rows.find((item) => item.amount != null)
+          || analytics.rows[0]
+          || null;
+        state.dailySelectedVenue = dailyStoreKey(selectedStore);
+        const mainlandRows = analytics.rows.filter((item) => dailyStoreRegion(item) === "mainland");
+        const hongkongRows = analytics.rows.filter((item) => dailyStoreRegion(item) === "hongkong");
+        const hongkongPanel = byId("daily-hongkong-panel");
+        const regionGrid = byId("daily-region-grid");
+        if (hongkongPanel) {
+          hongkongPanel.hidden = !hongkongRows.length;
+          hongkongPanel.setAttribute("aria-hidden", String(!hongkongRows.length));
+        }
+        if (regionGrid) regionGrid.classList.toggle("is-single", !hongkongRows.length);
+        dailyPlatformLegend(analytics.rows);
+        text("daily-mainland-meta", dailyRegionMeta(mainlandRows));
+        text("daily-hongkong-meta", dailyRegionMeta(hongkongRows));
+        renderDailyRegion(byId("daily-mainland-ranking"), mainlandRows, "内地");
+        renderDailyRegion(byId("daily-hongkong-ranking"), hongkongRows, "香港");
+        if (selectedStore) renderDailyStoreDetail(selectedStore);
+        else {
+          text("daily-store-detail-title", "请选择门店");
+          text("daily-store-detail-meta", "点击左侧排行榜中的门店，查看收入构成");
+          const body = byId("daily-store-detail-body");
+          if (body) body.innerHTML = '<div class="daily-detail-placeholder daily-detail-placeholder-chart"><div class="daily-donut" role="img" aria-label="暂无门店收入构成数据"><div class="daily-donut-center">—<small>暂无门店数据</small></div></div><span>暂无门店数据</span><small>数据完整后会显示平台收入占比</small></div>';
+        }
+      }
+
+      function resetForecast(message) {
+        ["forecast-end", "forecast-rate", "forecast-gap", "forecast-needed"].forEach((id) => text(id, "—"));
+        ["forecast-end-note", "forecast-rate-note", "forecast-gap-note", "forecast-needed-note"].forEach((id) => text(id, message));
+        const list = byId("forecast-list");
+        clear(list);
+        list.appendChild(emptyState(message, "chart-dots"));
+        text("forecast-method", "预测方法：暂无可用数据");
+      }
+
+      function renderForecast(payload) {
+        const projection = payload && payload.projection;
+        if (!projection || !projection.available) {
+          resetForecast((projection && projection.error) || "暂无预测数据");
+          return;
+        }
+
+        const hasTarget = projection.target != null && Number.isFinite(Number(projection.target));
+        const gap = hasTarget ? Number(projection.gap) : null;
+        text("forecast-end", `¥${formatWan(projection.projected_end)}`);
+        text("forecast-end-note", `当前累计 ¥${formatWan(projection.mtd)}`);
+        text("forecast-rate", hasTarget ? formatPercent(projection.projected_completion) : "—");
+        text("forecast-rate-note", hasTarget ? `当前完成率 ${formatPercent(projection.completion)}` : `${projection.month || "当月"} 目标未配置`);
+        text("forecast-gap", hasTarget ? (gap > 0 ? `¥${formatWan(gap)}` : "预计达标") : "—");
+        text("forecast-gap-note", hasTarget ? (gap > 0 ? "按当前推演仍有差距" : `预计超目标 ¥${formatWan(Math.abs(gap))}`) : "目标未配置，无法比较");
+        text("forecast-needed", hasTarget ? `¥${formatWan(projection.needed_daily)}` : "—");
+        text("forecast-needed-note", hasTarget ? `剩余 ${formatNumber(projection.remaining_days)} 个自然日` : "目标未配置，无法计算");
+
+        const trend = payload.trend || {};
+        const list = byId("forecast-list");
+        clear(list);
+        if (!trend.available || !Array.isArray(trend.forecast) || !trend.forecast.length) {
+          list.appendChild(emptyState(trend.note || "历史样本不足，暂无法生成月度趋势", "chart-dots"));
+        } else {
+          trend.forecast.forEach((item) => {
+            const row = document.createElement("div");
+            row.className = "forecast-row";
+            const month = document.createElement("strong");
+            month.textContent = item.month || "—";
+            const point = document.createElement("span");
+            point.textContent = `预测 ¥${formatWan(item.point)}`;
+            const range = document.createElement("span");
+            range.className = "forecast-range";
+            range.textContent = `参考区间 ${formatWan(item.lower)} – ${formatWan(item.upper)}`;
+            row.append(month, point, range);
+            list.appendChild(row);
+          });
+        }
+        text("forecast-method", `预测方法：${trend.method || "确定性统计推演"}${trend.note ? `；${trend.note}` : ""}`);
+      }
+
+      function resultValue(result, fallback) {
+        return result.status === "fulfilled" ? result.value : fallback;
+      }
+
+      function setRolePanelStatus(prefix, kind, label, note) {
+        const pill = byId(`portal-${prefix}-status`);
+        if (pill) {
+          pill.className = `status-pill${kind ? ` is-${kind}` : ""}`;
+          pill.textContent = label;
+        }
+        text(`portal-${prefix}-note`, note);
+      }
+
+      function renderMonitoringPanel(payload) {
+        window.renderMemberWatch('portal-member-watch', payload);
+        if (!payload || typeof payload !== "object") {
+          setRolePanelStatus("monitoring", "error", "读取失败", "监控数据暂时不可用，请稍后刷新。");
+          return;
+        }
+        const summary = payload.summary || {};
+        text("portal-monitoring-venues", formatNumber(summary.venue_count ?? (payload.venues || []).length));
+        text("portal-monitoring-transactions", formatNumber(summary.transaction_count));
+        text("portal-monitoring-alerts", formatNumber(summary.alert_count ?? summary.anomaly_count));
+        const mode = payload.mode_label || "监控数据";
+        setRolePanelStatus("monitoring", payload.mode === "live" ? "good" : "warning", mode, payload.generated_at ? `最近生成：${payload.generated_at}` : "当前账号可见范围内的监控摘要");
+      }
+
+      function renderPaymentPanel(dateRows, monthData, lifetimeData) {
+        const rows = Array.isArray(dateRows?.rows) ? dateRows.rows : [];
+        const info = monthData && monthData.summary ? monthData.summary : {};
+        const lifetimeSummary = lifetimeData && lifetimeData.summary ? lifetimeData.summary : {};
+        text("portal-payment-base", info.mapped_total == null ? "—" : `¥${formatNumber(info.mapped_total, 2)}`);
+        text("portal-payment-points", lifetimeSummary.points_amount == null ? "—" : `¥${formatNumber(lifetimeSummary.points_amount, 2)}`);
+        text("portal-payment-rows", formatNumber(rows.length));
+        const available = Boolean(dateRows?.info || rows.length || monthData);
+        setRolePanelStatus("payment", available ? "good" : "warning", available ? "已读取" : "暂无数据", available ? `业务日期 ${dateInput.value} 可见明细 ${rows.length} 行` : "当前日期暂无可见货款数据");
+      }
+
+      async function loadRolePanels(date, signal) {
+        const jobs = [];
+        if (hasPermission("monitoring.view")) {
+          jobs.push(fetchJson(`/api/portal/monitoring/overview?days=7&date=${encodeURIComponent(date)}`, signal)
+            .then(payload => { if(!signal.aborted && date === dateInput.value) renderMonitoringPanel(payload); })
+            .catch(() => { if(signal.aborted || date !== dateInput.value) return; window.renderMemberWatch('portal-member-watch', null); setRolePanelStatus("monitoring", "error", "读取失败", "监控数据暂时不可用，请稍后刷新。"); }));
+        }
+        if (hasPermission("payment.view")) {
+          const [year, month] = date.split("-").map(Number);
+          const dateJob = fetchJson(`/api/portal/payment-data/date/${encodeURIComponent(date)}`, signal);
+          const monthJob = fetchJson(`/api/portal/payment-accounting/month/${year}/${month}`, signal);
+          const lifetimeJob = fetchJson(`/api/portal/payment-accounting/summary`, signal);
+          jobs.push(Promise.allSettled([dateJob, monthJob, lifetimeJob]).then((results) => {
+            if(signal.aborted || date !== dateInput.value) return;
+            renderPaymentPanel(resultValue(results[0], null), resultValue(results[1], null), resultValue(results[2], null));
+            if(results.some(result => result.status === 'rejected')) {
+              if(results[0].status === 'rejected') text('portal-payment-rows', '—');
+              setRolePanelStatus('payment', 'warning', '读取不完整', '部分货款接口读取失败，缺失项目显示为—，请重新读取。');
+            }
+          }).catch(() => { if(!signal.aborted && date === dateInput.value) setRolePanelStatus("payment", "error", "读取失败", "货款数据暂时不可用，请稍后刷新。"); }));
+        }
+        await Promise.all(jobs);
+      }
+
+      async function loadPortal() {
+        if (!hasPermission("portal.view")) return;
+        const date = dateInput.value;
+        if (!date) return;
+
+        if (state.controller) state.controller.abort();
+        state.controller = new AbortController();
+        state.sequence += 1;
+        const sequence = state.sequence;
+        const signal = state.controller.signal;
+        resetView(date);
+        resetForecast("正在读取预测数据…");
+        setBusy(true);
+
+        const encodedDate = encodeURIComponent(date);
+        const requests = [
+          fetchJson(`/api/portal/summary/${encodedDate}`, signal),
+          fetchJson(`/api/portal/dashboard/status?date=${encodedDate}`, signal),
+          fetchJson(`/api/portal/dashboard/data?date=${encodedDate}`, signal),
+          fetchJson(`/api/portal/daily-operations?date=${encodedDate}&venue=${encodeURIComponent(dailyVenueInput.value || "")}`, signal),
+          fetchJson(`/api/portal/analyst/forecast?date=${encodedDate}`, signal),
+          fetchJson(`/api/portal/collection/status?date=${encodedDate}`, signal),
+        ];
+
+        try {
+          const results = await Promise.allSettled(requests);
+          if (sequence !== state.sequence || signal.aborted) return;
+
+          const summary = resultValue(results[0], { columns: [], rows: [] });
+          const dashboardStatus = resultValue(results[1], null);
+          const dashboard = resultValue(results[2], null);
+          const daily = resultValue(results[3], null);
+          const forecast = resultValue(results[4], null);
+          const collectionStatus = resultValue(results[5], null);
+          const failedCount = results.filter((result) => result.status === "rejected").length;
+
+          renderSummary(summary);
+          renderDashboard(dashboard);
+          if (daily) renderDailyOperations(daily);
+          else text("daily-status", "每日经营数据读取失败，请稍后刷新重试。");
+          renderFreshness(date, collectionStatus, dashboardStatus, summary, failedCount);
+          if (forecast) renderForecast(forecast);
+          else resetForecast("预测数据读取失败");
+
+          const download = byId("summary-download");
+          if (hasPermission("portal.download") && summary.rows && summary.rows.length) {
+            download.href = `/api/portal/download/${encodedDate}`;
+            download.removeAttribute("aria-disabled");
+            mobileSummaryDownload.href = `/api/portal/download/${encodedDate}`;
+            mobileSummaryDownload.removeAttribute("aria-disabled");
+          }
+          const bossDownload = byId("boss-report-download");
+          if (hasPermission("boss_report.download")) {
+            bossDownload.href = `/api/portal/boss-report/${encodedDate}`;
+            bossDownload.removeAttribute("aria-disabled");
+            mobileBossReportDownload.href = `/api/portal/boss-report/${encodedDate}`;
+            mobileBossReportDownload.removeAttribute("aria-disabled");
+          }
+
+          if (collectionStatus && collectionStatus.state === "collecting") scheduleCollectionPoll();
+
+          await loadRolePanels(date, signal);
+
+          text("portal-live", `已更新 ${date} 的门户数据${failedCount ? `，${failedCount} 个区块读取失败` : ""}`);
+        } finally {
+          if (sequence === state.sequence) setBusy(false);
+        }
+      }
+
+      refreshButton.addEventListener("click", loadPortal);
+      dateInput.addEventListener("change", loadPortal);
+      mobileOverviewAction.addEventListener("click", () => {
+        activatePortalCategory("overview", { updateHash: true });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      mobileCollectAction.addEventListener("click", async () => {
+        if (!hasPermission("admin.access") || !dateInput.value) return;
+        const endDate = dateInput.value;
+        const startDate = `${endDate.slice(0, 7)}-01`;
+        mobileCollectAction.disabled = true;
+        setMobileActionStatus(`正在发起 ${startDate} 至 ${endDate} 的数据获取…`);
+        try {
+          const response = await portalFetch(
+            `/api/portal/collect?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`,
+            { method: "POST", headers: { Accept: "application/json" } },
+          );
+          let payload = {};
+          try { payload = await response.json(); } catch (_) { payload = {}; }
+          if (!response.ok || payload.status === "error" || payload.status === "busy") {
+            throw new Error(payload.message || payload.detail || `获取失败（${response.status}）`);
+          }
+          setMobileActionStatus("已开始获取，本页面会自动刷新状态。", false);
+          scheduleCollectionPoll();
+          await loadPortal();
+        } catch (error) {
+          setMobileActionStatus(error.message || "获取失败，请稍后重试。", true);
+        } finally {
+          mobileCollectAction.disabled = false;
+        }
+      });
+      summarySearch.addEventListener("input", renderSummaryRows);
+      initSummaryHighlight();
+      dailyVenueInput.addEventListener("change", loadPortal);
+      byId("daily-store-dialog-close").addEventListener("click", closeDailyStoreDetail);
+      byId("daily-store-dialog").addEventListener("click", (event) => { if (event.target === event.currentTarget) closeDailyStoreDetail(); });
+      byId("portal-platform-links-trigger").addEventListener("click", (event) => openPlatformLinks(event.currentTarget));
+      byId("platform-links-close").addEventListener("click", closePlatformLinks);
+      byId("platform-links-dialog").addEventListener("click", (event) => { if (event.target === event.currentTarget) closePlatformLinks(); });
+      byId("platform-links-dialog").addEventListener("close", restorePlatformLinksFocus);
+      byId("portal-logout-button").addEventListener("click", logoutPortalUser);
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      dateInput.value = localDateString(yesterday);
+      dateInput.max = localDateString(new Date());
+      loadPortalUser().then(async (allowed) => { if (allowed) { await loadPlatformLinks(); loadPortal(); } }).catch(() => {
+        text("freshness-status", "无法验证当前登录状态");
+        text("freshness-detail", "请刷新页面或重新登录");
+      });
+    })();
+  </script>
+</body>
+</html>

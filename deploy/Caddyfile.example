@@ -1,0 +1,10 @@
+# Template only. Set SITE_ADDRESS to your actual HTTPS hostname before validation.
+# Run Caddy on the same Windows host as the application. Caddy 2.10+ required.
+{$SITE_ADDRESS} {
+    request_body {
+        max_size 12MB
+    }
+    @local_only path /setup /setup/* /api/auth/setup /api/auth/setup/*
+    respond @local_only "Local initialization only" 403
+    reverse_proxy 127.0.0.1:8010
+}
